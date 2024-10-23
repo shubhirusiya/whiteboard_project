@@ -2,6 +2,7 @@
 An interactive whiteboard project.
 **Collaborative Real-Time Whiteboard:**
 **Coordinators**:  Shubhi Rusiya, Sudeepti Singh 
+Team members
 
 **Tech Stack:** 
 * React.js (Frontend)
