@@ -1,0 +1,23 @@
+.navbar {
+    background-color: #c7c6c6;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .navbar ul {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+  }
+  
+  .nav-item {
+    margin: 0 15px;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  
+  .nav-item:hover {
+    color: #007bff;
+  }
+  
