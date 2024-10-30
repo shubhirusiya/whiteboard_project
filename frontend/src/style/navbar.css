@@ -1,23 +1,47 @@
 .navbar {
-    background-color: #c7c6c6;
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .navbar ul {
-    list-style-type: none;
-    padding: 0;
-    display: flex;
-  }
-  
-  .nav-item {
-    margin: 0 15px;
-    cursor: pointer;
-    transition: color 0.3s;
-  }
-  
-  .nav-item:hover {
-    color: #007bff;
-  }
-  
+  background-color: #f0f0f0;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  width: 100%; /* Make navbar take the full width */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+}
+
+.actions {
+  display: flex;
+  gap: 20px;
+  margin-left: 500px; /* Pushes the actions to the right */
+}
+
+.nav-item {
+  padding: 10px;
+  background-color: #e0e0e0;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-item:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.nav-item.sign-in {
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.nav-item.sign-in:hover {
+  background-color: #45a049;
+}
