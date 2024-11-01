@@ -1,14 +1,9 @@
-import React, { useState } from 'react';
+// src/components/Navbar.js
+import React from 'react';
+import { Link } from 'react-router-dom';
 import '../style/navbar.css';
-import Signup from './signup';
 
 const Navbar = ({ onToolSelect }) => {
-  const [showSignup, setShowSignup] = useState(false);
-
-  const toggleSignup = () => {
-    setShowSignup(!showSignup);
-  };
-
   return (
     <nav className="navbar">
       <div className="toolbar">
@@ -24,13 +19,11 @@ const Navbar = ({ onToolSelect }) => {
         <button onClick={() => onToolSelect('save')} className="nav-item">💾 Save</button>
       </div>
       <div className="actions">
-        <button className="nav-item sign-in" onClick={toggleSignup}>🔒 Sign In</button>
-        {showSignup && <Signup onClose={toggleSignup} />}
+        {/* Link to Signup Page */}
+        <Link to="/signup" className="nav-item sign-in">🔒 Sign In</Link>
       </div>
     </nav>
   );
 };
 
 export default Navbar;
-
-
