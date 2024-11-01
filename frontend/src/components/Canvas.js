@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Stage, Layer, Line, Rect, Circle, Arrow, Text } from 'react-konva';
+import Navbar from './navbar';
 
 function Canvas({ selectedTool }) {
   const [lines, setLines] = useState([]);
@@ -73,7 +74,10 @@ function Canvas({ selectedTool }) {
   };
 
   return (
+    
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px' }}>
+      <Navbar/>
+      <br></br>
       <div style={{
         display: 'flex',
         gap: '15px',
