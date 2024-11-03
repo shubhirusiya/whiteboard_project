@@ -1,9 +1,33 @@
 // src/components/Navbar.js
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { MoreVertical, StickyNote, MessageCircle, MessageSquare } from 'lucide-react';
 import '../style/navbar.css';
 
-const Navbar = ({ onToolSelect }) => {
+const Navbar = ({ onToolSelect, onFeatureSelect }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleFeatureSelect = (feature) => {
+    if (onFeatureSelect) {
+      onFeatureSelect(feature);
+    }
+    setShowDropdown(false);
+  };
+
   return (
     <nav className="navbar">
       <div className="toolbar">
@@ -19,7 +43,30 @@ const Navbar = ({ onToolSelect }) => {
         <button onClick={() => onToolSelect('save')} className="nav-item">💾 Save</button>
       </div>
       <div className="actions">
-        {/* Link to Signup Page */}
+        <div className="dropdown-container" ref={dropdownRef}>
+          <button 
+            className="nav-item more-options" 
+            onClick={() => setShowDropdown(!showDropdown)}
+          >
+            <MoreVertical size={20} />
+          </button>
+          {showDropdown && (
+            <div className="dropdown-menu">
+              <button onClick={() => handleFeatureSelect('sticky-notes')} className="dropdown-item">
+                <StickyNote size={18} />
+                Sticky Notes
+              </button>
+              <button onClick={() => handleFeatureSelect('comments')} className="dropdown-item">
+                <MessageCircle size={18} />
+                Comments
+              </button>
+              <button onClick={() => handleFeatureSelect('chat')} className="dropdown-item">
+                <MessageSquare size={18} />
+                Chat
+              </button>
+            </div>
+          )}
+        </div>
         <Link to="/signup" className="nav-item sign-in">🔒 Sign In</Link>
       </div>
     </nav>

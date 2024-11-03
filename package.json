@@ -1,12 +1,12 @@
 {
   "dependencies": {
-    "firebase": "^11.0.1"
+    "firebase": "^11.0.1",
+    "lucide-react": "^0.454.0"
   },
   "name": "whiteboard_project",
   "version": "1.0.0",
   "description": "An interactive whiteboard project.\r **Collaborative Real-Time Whiteboard:**\r **Coordinators**:  Shubhi Rusiya, Sudeepti Singh \r Team members\r 1 names\r 2\r 3",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

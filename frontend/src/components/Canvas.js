@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Stage, Layer, Line, Rect, Circle, Arrow, Text } from 'react-konva';
 import Navbar from './navbar';
 
-function Canvas({ selectedTool }) {
+function Canvas() {
   const [lines, setLines] = useState([]);
   const [shapes, setShapes] = useState([]);
   const [texts, setTexts] = useState([]);
@@ -12,7 +12,22 @@ function Canvas({ selectedTool }) {
   const [brushSize, setBrushSize] = useState(5);
   const [startPos, setStartPos] = useState(null);
   const [editingTextIndex, setEditingTextIndex] = useState(null);
+  const [selectedTool, setSelectedTool] = useState('pen'); // Add this line
   const stageRef = useRef(null);
+
+  // Add this function to handle tool selection
+  const handleToolSelect = (tool) => {
+    setSelectedTool(tool);
+    if (tool === 'clear') {
+      handleClearCanvas();
+    }
+  };
+
+  // Add this function to handle feature selection
+  const handleFeatureSelect = (feature) => {
+    // Handle feature selection (implement as needed)
+    console.log('Selected feature:', feature);
+  };
 
   const handleMouseDown = (event) => {
     const pos = event.target.getStage().getPointerPosition();
@@ -74,10 +89,12 @@ function Canvas({ selectedTool }) {
   };
 
   return (
-    
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px' }}>
-      <Navbar/>
-      <br></br>
+      <Navbar 
+        onToolSelect={handleToolSelect} 
+        onFeatureSelect={handleFeatureSelect}
+      />
+     <br></br>
       <div style={{
         display: 'flex',
         gap: '15px',
