@@ -26,7 +26,8 @@ function Canvas({ selectedTool }) {
     socket.current.on('draw-data', (data) => {
       if (data.tool === 'pen' || data.tool === 'eraser') {
         setLines((prevLines) => [...prevLines, data]);
-      } else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(data.tool)) {
+      }
+       else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(data.tool)) {
         setShapes((prevShapes) => [...prevShapes, data]);
       } else if (data.tool === 'text') {
         setTexts((prevTexts) => [...prevTexts, data]);
@@ -66,27 +67,31 @@ function Canvas({ selectedTool }) {
     if (!isDrawing) return;
     const stage = event.target.getStage();
     const point = stage.getPointerPosition();
-
-    let newData;
+  
     if (selectedTool === 'pen' || selectedTool === 'eraser') {
+      // Continue drawing for pen and eraser tools
       const lastLine = lines[lines.length - 1];
       lastLine.points = lastLine.points.concat([point.x, point.y]);
       lines.splice(lines.length - 1, 1, lastLine);
       setLines([...lines]);
-      newData = lastLine;
+      emitDrawData(lastLine); // Emit updated line data in real time
     } else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(selectedTool)) {
+      // Only update the shape's endpoint locally; don't emit data
       const newShapes = [...shapes];
       const lastShape = newShapes[newShapes.length - 1];
       lastShape.endX = point.x;
       lastShape.endY = point.y;
       setShapes(newShapes);
-      newData = lastShape;
     }
-    emitDrawData(newData);  // Emit updated data over WebSocket
+  //  emitDrawData(newData);  // Emit updated data over WebSocket
   };
 
   const handleMouseUp = () => {
     setIsDrawing(false);
+    if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(selectedTool)) {
+      const lastShape = shapes[shapes.length - 1];
+      emitDrawData(lastShape);
+    }
   };
 
   return (
