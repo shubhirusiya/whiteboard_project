@@ -17,13 +17,13 @@ function App() {
     <Router>
       <div className="App">
         <div className="header">Collaborative Whiteboard</div>
-{/* <Navbar onToolSelect={handleToolSelect} /> */}
-                
+
+        {/* Render Navbar and pass handleToolSelect to it */}
+        <Navbar onToolSelect={handleToolSelect} />
+
         {/* Define Routes */}
         <Routes>
-        <Route path="/" element={<Canvas/>} />
-
-          {/* <Route path="/" element={<Navbar/>} /> */}
+          <Route path="/" element={<Canvas selectedTool={selectedTool} />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
       </div>
