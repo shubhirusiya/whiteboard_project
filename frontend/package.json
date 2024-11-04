@@ -8,11 +8,13 @@
     "@testing-library/user-event": "^13.5.0",
     "fabric": "^6.4.3",
     "konva": "^9.3.16",
+    "lucide-react": "^0.454.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-konva": "^18.2.10",
     "react-router-dom": "^6.27.0",
     "react-scripts": "^5.0.1",
+    "socket.io-client": "^4.8.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
