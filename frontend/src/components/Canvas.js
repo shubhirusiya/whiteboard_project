@@ -1,25 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Stage, Layer, Line, Rect, Circle, Arrow, Text, Transformer } from 'react-konva';
+import { Stage, Layer, Line, Rect, Circle, Arrow, Text } from 'react-konva';
 import { io } from 'socket.io-client';
 import Navbar from './navbar';
+
 
 function Canvas({ selectedTool }) {
   const [lines, setLines] = useState([]);
   const [shapes, setShapes] = useState([]);
   const [texts, setTexts] = useState([]);
-  const [comments, setComments] = useState([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState('black');
   const [fillColor, setFillColor] = useState('');
   const [brushSize, setBrushSize] = useState(5);
   const [startPos, setStartPos] = useState(null);
-  const [selectedId, setSelectedId] = useState(null);
-  const [editingText, setEditingText] = useState(null);
   const [editingTextIndex, setEditingTextIndex] = useState(null);
-  
+  const [selectedToolState, setSelectedTool] = useState(selectedTool); 
   const stageRef = useRef(null);
-  const textareaRef = useRef(null);
-  const transformerRef = useRef(null);
 
   // Initialize socket connection
   const socket = useRef(null);
@@ -32,7 +28,7 @@ function Canvas({ selectedTool }) {
       if (data.tool === 'pen' || data.tool === 'eraser') {
         setLines((prevLines) => [...prevLines, data]);
       }
-      else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(data.tool)) {
+       else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(data.tool)) {
         setShapes((prevShapes) => [...prevShapes, data]);
       } else if (data.tool === 'text') {
         setTexts((prevTexts) => [...prevTexts, data]);
@@ -44,35 +40,8 @@ function Canvas({ selectedTool }) {
     };
   }, []);
 
-  // Add transformer effect
-  useEffect(() => {
-    if (selectedId) {
-      transformerRef.current.nodes([stageRef.current.findOne('#' + selectedId)]);
-      transformerRef.current.getLayer().batchDraw();
-    }
-  }, [selectedId]);
-
   const emitDrawData = (data) => {
     socket.current.emit('draw-data', data);
-  };
-
-  const handleTextEdit = (textNode) => {
-    const textPosition = textNode.absolutePosition();
-    const stageBox = stageRef.current.container().getBoundingClientRect();
-    const areaPosition = {
-      x: stageBox.left + textPosition.x,
-      y: stageBox.top + textPosition.y,
-    };
-
-    const textarea = textareaRef.current;
-    textarea.style.display = 'block';
-    textarea.style.position = 'absolute';
-    textarea.style.top = `${areaPosition.y}px`;
-    textarea.style.left = `${areaPosition.x}px`;
-    textarea.style.width = `${textNode.width()}px`;
-    textarea.style.height = `${textNode.height()}px`;
-    textarea.value = textNode.text();
-    textarea.focus();
   };
 
   const handleMouseDown = (event) => {
@@ -88,39 +57,11 @@ function Canvas({ selectedTool }) {
       newData = { tool: selectedTool, startX: pos.x, startY: pos.y, endX: pos.x, endY: pos.y, color, fillColor };
       setShapes([...shapes, newData]);
     } else if (selectedTool === 'text') {
-      const newText = {
-        id: `text-${texts.length}`,
-        x: pos.x,
-        y: pos.y,
-        text: 'Type here...',
-        fontSize: 16,
-        width: 200,
-        height: 50,
-        draggable: true,
-        color: color
-      };
-      setTexts([...texts, newText]);
-      setSelectedId(newText.id);
-      setEditingText(newText);
-      newData = newText;
-    } else if (selectedTool === 'comments') {
-      const newComment = {
-        id: `comment-${comments.length}`,
-        x: pos.x,
-        y: pos.y,
-        text: '',
-        width: 150,
-        height: 100,
-        color: color
-      };
-      setComments([...comments, newComment]);
-      setEditingText(newComment);
-      newData = newComment;
+      newData = { x: pos.x, y: pos.y, width: 100, height: 50, text: '', color, fontSize: 20 };
+      setTexts([...texts, newData]);
+      setEditingTextIndex(texts.length);
     }
-    
-    if (newData) {
-      emitDrawData(newData);
-    }
+    emitDrawData(newData);  // Emit data over WebSocket
   };
 
   const handleMouseMove = (event) => {
@@ -129,18 +70,31 @@ function Canvas({ selectedTool }) {
     const point = stage.getPointerPosition();
   
     if (selectedTool === 'pen' || selectedTool === 'eraser') {
+      // Continue drawing for pen and eraser tools
       const lastLine = lines[lines.length - 1];
       lastLine.points = lastLine.points.concat([point.x, point.y]);
       lines.splice(lines.length - 1, 1, lastLine);
       setLines([...lines]);
-      emitDrawData(lastLine);
+      emitDrawData(lastLine); // Emit updated line data in real time
     } else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(selectedTool)) {
+      // Only update the shape's endpoint locally; don't emit data
       const newShapes = [...shapes];
       const lastShape = newShapes[newShapes.length - 1];
       lastShape.endX = point.x;
       lastShape.endY = point.y;
       setShapes(newShapes);
     }
+  //  emitDrawData(newData);  // Emit updated data over WebSocket
+  };
+  const handleToolSelect = (tool) => {
+    setSelectedTool(tool);
+    if (tool === 'clear') {
+      handleClearCanvas();
+    }
+  };
+  const handleFeatureSelect = (feature) => {
+    // Handle feature selection (implement as needed)
+    console.log('Selected feature:', feature);
   };
 
   const handleMouseUp = () => {
@@ -150,12 +104,78 @@ function Canvas({ selectedTool }) {
       emitDrawData(lastShape);
     }
   };
+ const handleTextChange = (e) => {
+    if (editingTextIndex === null) return;
+    const newTexts = texts.map((text, i) => i === editingTextIndex ? { ...text, text: e.target.value } : text);
+    setTexts(newTexts);
+  };
+
+  const handleClearCanvas = () => {
+    setLines([]);
+    setShapes([]);
+    setTexts([]);
+  };
+
+  const handleUndo = () => {
+    if (selectedTool === 'pen' || selectedTool === 'eraser') {
+      setLines(lines.slice(0, -1));
+    } else {
+      setShapes(shapes.slice(0, -1));
+      setTexts(texts.slice(0, -1));
+    }
+  };
 
   return (
-    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px' }}>
+          {/* <Navbar 
+        onToolSelect={handleToolSelect} 
+        onFeatureSelect={handleFeatureSelect}
+      /> */}
+      <br />
       {/* Toolbar setup */}
-      <div style={{ display: 'flex', gap: '15px', padding: '7px 15px', backgroundColor: '#f0f0f0', borderRadius: '10px', boxShadow: '2px 4px 10px rgba(0, 0, 0, 0.2)', marginBottom: '20px' }}>
-        {/* Color, FillColor, BrushSize, Clear, Undo Buttons */}
+      <div style={{
+        display: 'flex',
+        gap: '15px',
+        padding: '7px 15px',
+        backgroundColor: '#f0f0f0',
+        borderRadius: '10px',
+        boxShadow: '2px 4px 10px rgba(0, 0, 0, 0.2)',
+        marginBottom: '20px'
+      }}>
+        <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <span style={{ fontSize: '14px', marginBottom: '4px' }}>Color</span>
+          <input type="color" value={color} onChange={(e) => setColor(e.target.value)} style={{ cursor: 'pointer', border: '2px solid transparent', borderRadius: '5px', padding: '5px', transition: 'border 0.3s' }} onMouseEnter={(e) => e.target.style.border = '2px solid black'} onMouseLeave={(e) => e.target.style.border = '2px solid transparent'} />
+        </label>
+        <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <span style={{ fontSize: '14px', marginBottom: '4px' }}>Brush Size</span>
+          <input type="range" min="1" max="20" value={brushSize} onChange={(e) => setBrushSize(Number(e.target.value))} style={{ cursor: 'pointer' }} />
+        </label>
+        <button onClick={handleClearCanvas} style={{
+          padding: '8px 5px',
+          borderRadius: '10px',
+          backgroundColor: 'gray',
+          color: '#fff',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          border: 'none',
+          transition: 'background-color 0.3s',
+        }} onMouseOver={(e) => e.target.style.backgroundColor = 'blue'}
+          onMouseOut={(e) => e.target.style.backgroundColor = 'dodgerblue'}>
+          Clear Canvas
+        </button>
+        <button onClick={handleUndo} style={{
+          padding: '1px 7px 3px',
+          borderRadius: '5px',
+          backgroundColor: 'dodgerblue',
+          color: '#fff',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          border: 'none',
+          transition: 'background-color 0.3s',
+        }} onMouseOver={(e) => e.target.style.backgroundColor = 'blue'}
+          onMouseOut={(e) => e.target.style.backgroundColor = 'dodgerblue'}>
+          Undo
+        </button>
       </div>
 
       <Stage
@@ -165,22 +185,9 @@ function Canvas({ selectedTool }) {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onClick={(e) => {
-          const clickedOnEmpty = e.target === e.target.getStage();
-          if (clickedOnEmpty) {
-            setSelectedId(null);
-          }
-        }}
       >
         <Layer>
-          <Rect 
-            x={0} 
-            y={0} 
-            width={window.innerWidth} 
-            height={window.innerHeight} 
-            fill="lightgrey" 
-            listening={false} 
-          />
+          <Rect x={0} y={0} width={window.innerWidth} height={window.innerHeight} fill="lightgrey" listening={false} />
 
           {/* Render Lines */}
           {lines.map((line, index) => (
@@ -222,108 +229,22 @@ function Canvas({ selectedTool }) {
           })}
 
           {/* Render Texts */}
-          {texts.map((text) => (
+          {texts.map((text, index) => (
             <Text
-              key={text.id}
-              id={text.id}
+              key={index}
               x={text.x}
               y={text.y}
-              text={text.text}
-              fontSize={text.fontSize}
+              text={text.text || 'Enter Text'}
               fill={text.color}
+              fontSize={text.fontSize}
               width={text.width}
               height={text.height}
-              draggable={true}
-              onClick={() => {
-                setSelectedId(text.id);
-                setEditingText(text);
-              }}
-              onTransform={(e) => {
-                const node = e.target;
-                const scaleX = node.scaleX();
-                const scaleY = node.scaleY();
-                node.scaleX(1);
-                node.scaleY(1);
-                node.width(node.width() * scaleX);
-                node.height(node.height() * scaleY);
-              }}
+              draggable
+              onClick={() => setEditingTextIndex(index)}
             />
           ))}
-
-          {/* Render Comments */}
-          {comments.map((comment) => (
-            <React.Fragment key={comment.id}>
-              <Rect
-                x={comment.x}
-                y={comment.y}
-                width={comment.width}
-                height={comment.height}
-                fill="yellow"
-                stroke="black"
-                cornerRadius={5}
-              />
-              <Text
-                x={comment.x + 5}
-                y={comment.y + 5}
-                text={comment.text || 'Add comment here...'}
-                width={comment.width - 10}
-                height={comment.height - 10}
-                fontSize={14}
-                fill="black"
-                onClick={() => setEditingText(comment)}
-              />
-            </React.Fragment>
-          ))}
-
-          {/* Transformer for text resizing */}
-          {selectedId && (
-            <Transformer
-              ref={transformerRef}
-              boundBoxFunc={(oldBox, newBox) => {
-                if (newBox.width < 20 || newBox.height < 20) {
-                  return oldBox;
-                }
-                return newBox;
-              }}
-            />
-          )}
         </Layer>
       </Stage>
-
-      {/* Textarea for editing text and comments */}
-      <textarea
-        ref={textareaRef}
-        style={{
-          display: 'none',
-          position: 'absolute',
-          border: '1px solid black',
-          padding: '5px',
-          overflow: 'hidden',
-          resize: 'both',
-          minHeight: '50px',
-          minWidth: '100px',
-          background: 'white'
-        }}
-        onChange={(e) => {
-          if (editingText) {
-            if (editingText.id.startsWith('text')) {
-              const updatedTexts = texts.map(t =>
-                t.id === editingText.id ? { ...t, text: e.target.value } : t
-              );
-              setTexts(updatedTexts);
-            } else {
-              const updatedComments = comments.map(c =>
-                c.id === editingText.id ? { ...c, text: e.target.value } : c
-              );
-              setComments(updatedComments);
-            }
-          }
-        }}
-        onBlur={() => {
-          textareaRef.current.style.display = 'none';
-          setEditingText(null);
-        }}
-      />
     </div>
   );
 }
