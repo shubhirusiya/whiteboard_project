@@ -12,6 +12,10 @@ function App() {
     setSelectedTool(tool);
     console.log(`Selected tool: ${tool}`);
   };
+  const handleFeatureSelect = (feature) => {
+    // Handle feature selection (implement as needed)
+    console.log('Selected feature:', feature);
+  };
 
   return (
     <Router>
@@ -19,8 +23,10 @@ function App() {
         <div className="header">Collaborative Whiteboard</div>
 
         {/* Render Navbar and pass handleToolSelect to it */}
-        <Navbar onToolSelect={handleToolSelect} />
-
+        <Navbar 
+        onToolSelect={handleToolSelect} 
+        onFeatureSelect={handleFeatureSelect}
+      />
         {/* Define Routes */}
         <Routes>
           <Route path="/" element={<Canvas selectedTool={selectedTool} />} />
