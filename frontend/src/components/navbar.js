@@ -1,4 +1,3 @@
-// src/components/Navbar.js
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { MoreVertical, StickyNote, MessageCircle, MessageSquare } from 'lucide-react';
@@ -29,48 +28,46 @@ const Navbar = ({ onToolSelect, onFeatureSelect }) => {
   };
 
   return (
-    <nav className="navbar">
+    <div className="navbar">
+      <div className="dropdown-container">
+        <button
+          className="more-options"
+          onClick={() => setShowDropdown(!showDropdown)}
+        >
+          <MoreVertical />
+        </button>
+        {showDropdown && (
+          <div className="dropdown-menu" ref={dropdownRef}>
+            <button onClick={() => handleFeatureSelect('chat')} className="dropdown-item">
+              <MessageSquare /> Chat
+            </button>
+            <button onClick={() => handleFeatureSelect('new')} className="dropdown-item">
+              <StickyNote /> New
+            </button>
+            <button onClick={() => handleFeatureSelect('open')} className="dropdown-item">
+              <MessageCircle /> Open
+            </button>
+          </div>
+        )}
+      </div>
       <div className="toolbar">
-        <button onClick={() => onToolSelect('pen')} className="nav-item">🖊️ Pen</button>
+        <button onClick={() => onToolSelect('pen')} className="nav-item">🖊 Pen</button>
         <button onClick={() => onToolSelect('eraser')} className="nav-item">🧽 Eraser</button>
         <button onClick={() => onToolSelect('rect')} className="nav-item">⬛ Rectangle</button>
         <button onClick={() => onToolSelect('circle')} className="nav-item">⭕ Circle</button>
         <button onClick={() => onToolSelect('triangle')} className="nav-item">🔺 Triangle</button>
         <button onClick={() => onToolSelect('line')} className="nav-item">📏 Line</button>
-        <button onClick={() => onToolSelect('arrow')} className="nav-item">➡️ Arrow</button>
-        <button onClick={() => onToolSelect('text')} className="nav-item">🅰️ Text</button>
-        <button onClick={() => onToolSelect('clear')} className="nav-item">🗑️ Clear</button>
+        <button onClick={() => onToolSelect('arrow')} className="nav-item">➡ Arrow</button>
+        <button onClick={() => onToolSelect('text')} className="nav-item">🅰 Text</button>
+        <button onClick={() => onToolSelect('clear')} className="nav-item">🗑 Clear</button>
         <button onClick={() => onToolSelect('save')} className="nav-item">💾 Save</button>
+        <button onClick={() => onToolSelect('sticky-notes')} className="nav-item">📋 Sticky Notes</button>
+        <button onClick={() => onToolSelect('comments')} className="nav-item">💬 Comments</button>
       </div>
-      <div className="actions">
-        <div className="dropdown-container" ref={dropdownRef}>
-          <button 
-            className="nav-item more-options" 
-            onClick={() => setShowDropdown(!showDropdown)}
-          >
-            <MoreVertical size={20} />
-          </button>
-          {showDropdown && (
-            <div className="dropdown-menu">
-              <button onClick={() => handleFeatureSelect('sticky-notes')} className="dropdown-item">
-                <StickyNote size={18} />
-                Sticky Notes
-              </button>
-              <button onClick={() => handleFeatureSelect('comments')} className="dropdown-item">
-                <MessageCircle size={18} />
-                Comments
-              </button>
-              <button onClick={() => handleFeatureSelect('chat')} className="dropdown-item">
-                <MessageSquare size={18} />
-                Chat
-              </button>
-            </div>
-          )}
-        </div>
-        <Link to="/signup" className="nav-item sign-in">🔒 Sign In</Link>
+      <Link to="/signup" className="nav-item sign-in">🔒 Sign In</Link>
       </div>
-    </nav>
+  
   );
 };
 
-export default Navbar;
+export default Navbar;
