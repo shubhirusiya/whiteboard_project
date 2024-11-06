@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { MoreVertical, StickyNote, MessageCircle, MessageSquare } from 'lucide-react';
+import { MoreVertical, StickyNote, MessageCircle, MessageSquare, Save } from 'lucide-react';
 import '../style/navbar.css';
 
 const Navbar = ({ onToolSelect, onFeatureSelect }) => {
@@ -38,14 +38,14 @@ const Navbar = ({ onToolSelect, onFeatureSelect }) => {
         </button>
         {showDropdown && (
           <div className="dropdown-menu" ref={dropdownRef}>
-            <button onClick={() => handleFeatureSelect('chat')} className="dropdown-item">
-              <MessageSquare /> Chat
-            </button>
             <button onClick={() => handleFeatureSelect('new')} className="dropdown-item">
               <StickyNote /> New
             </button>
             <button onClick={() => handleFeatureSelect('open')} className="dropdown-item">
               <MessageCircle /> Open
+            </button>
+            <button onClick={() => handleFeatureSelect('save')} className="dropdown-item">
+              <Save /> Save
             </button>
           </div>
         )}
@@ -60,9 +60,9 @@ const Navbar = ({ onToolSelect, onFeatureSelect }) => {
         <button onClick={() => onToolSelect('arrow')} className="nav-item">➡ Arrow</button>
         <button onClick={() => onToolSelect('text')} className="nav-item">🅰 Text</button>
         <button onClick={() => onToolSelect('clear')} className="nav-item">🗑 Clear</button>
-        <button onClick={() => onToolSelect('save')} className="nav-item">💾 Save</button>
         <button onClick={() => onToolSelect('sticky-notes')} className="nav-item">📋 Sticky Notes</button>
         <button onClick={() => onToolSelect('comments')} className="nav-item">💬 Comments</button>
+        <button onClick={() => onToolSelect('Chat')} className="nav-item">💾 Chat</button>
       </div>
       <Link to="/signup" className="nav-item sign-in">🔒 Sign In</Link>
       </div>
