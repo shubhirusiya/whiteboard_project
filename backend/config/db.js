@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // Replace with your MongoDB connection string
-const MONGODB_URI = 'mongodb://localhost:27017/whiteboard/whiteboard';
+const MONGODB_URI = 'mongodb://localhost:27017/whiteboard';
 
 // Connect to MongoDB
 const connectDB = async () => {

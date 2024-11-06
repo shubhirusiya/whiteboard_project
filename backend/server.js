@@ -7,12 +7,14 @@ const bodyParser = require('body-parser');
 const cors = require('cors'); 
 const signupRoute = require('./routes/signup');
 const whiteboardRoutes = require('./routes/whiteboard'); // Import the whiteboard route function
+const canvasRoutes = require('./routes/canvasRoutes'); // Import canvasRoutes
 
 const PORT = 8080;
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: { origin: "*" }  // Enable CORS if needed
 });
+
 io.on('connection', (socket) => {
   console.log('A user connected');
 
@@ -25,6 +27,7 @@ io.on('connection', (socket) => {
     console.log('User disconnected');
   });
 });
+
 // Connect to MongoDB
 connectDB();
 
@@ -41,6 +44,7 @@ app.get('/', (req, res) => {
 // Routes
 app.use('/', signupRoute);
 app.use('/whiteboard', whiteboardRoutes(io)); // Pass the io instance to whiteboardRoutes
+app.use('/', canvasRoutes); // Updated to include canvasRoutes for saving canvas and project name
 
 // Start server with `server.listen`
 server.listen(PORT, () => {

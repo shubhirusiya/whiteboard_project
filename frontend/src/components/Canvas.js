@@ -18,7 +18,10 @@ function Canvas({ selectedTool }) {
   const [editingTextIndex, setEditingTextIndex] = useState(null);
   const [selectedToolState, setSelectedTool] = useState(selectedTool);
   const [textDraftValue, setTextDraftValue] = useState('');
-  
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+const [projectName, setProjectName] = useState("");
+const [isSaving, setIsSaving] = useState(false);
+
   const stageRef = useRef(null);
   const textareaRef = useRef(null);
   const transformerRef = useRef(null);
@@ -205,6 +208,101 @@ function Canvas({ selectedTool }) {
     setSelectedId(null);
   };
 
+  // const handleSave = () => {
+  //   if (!projectName.trim()) {
+  //     alert('Please enter a project name');
+  //     return;
+  //   }
+    
+  //   const canvasData = {
+  //     projectName,
+  //     lines,
+  //     shapes,
+  //     texts,
+  //   };
+  //   const jsonData = JSON.stringify(canvasData);
+  
+  //   // Send jsonData to the server
+  //   saveToServer(jsonData);
+  // };
+
+  // const saveToServer = async (jsonData) => {
+  //   try {
+  //     const response = await fetch('http://localhost:8080/save-canvas', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ canvasData: jsonData }),
+  //     });
+  
+  //     if (response.ok) {
+  //       console.log('Canvas saved successfully');
+  //     } else {
+  //       console.error('Failed to save canvas');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error saving canvas:', error);
+  //   }
+  // };
+  const handleSaveClick = () => {
+    setIsSaveModalOpen(true);
+  };
+  const handleProjectNameChange = (e) => {
+    setProjectName(e.target.value);
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+
+
+  
+    // Prevent submitting if project name is empty
+    if (!projectName) {
+      alert("Project name is required!");
+      return;
+    }
+  
+    setIsSaving(true); // Show loading indicator
+  
+    // Capture the canvas data
+    const canvasData = {
+      lines: lines,
+      shapes: shapes,
+      texts: texts,
+    };
+  
+    // Save the project
+    await saveToServer(projectName, canvasData);
+  };
+  const saveToServer = async (projectName, canvasData) => {
+  try {
+    const response = await fetch('http://localhost:8080/save-canvas', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        projectName: projectName,
+        canvasData: canvasData,
+      }),
+    });
+
+    if (response.ok) {
+      alert('Project saved successfully!');
+      setIsSaveModalOpen(false);
+    } else {
+      alert('Failed to save the project');
+    }
+  } catch (error) {
+    console.error('Error saving project:', error);
+    alert('Error saving project');
+  } finally {
+    setIsSaving(false);
+  }
+};
+
+  
   return (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px' }}>
       <div style={{ display: 'flex', gap: '15px', padding: '7px 15px', backgroundColor: '#f0f0f0', borderRadius: '10px', boxShadow: '2px 4px 10px rgba(0, 0, 0, 0.2)', marginBottom: '20px' }}>
@@ -242,6 +340,38 @@ function Canvas({ selectedTool }) {
           onMouseOut={(e) => e.target.style.backgroundColor = 'dodgerblue'}>
           Undo
         </button>
+        <button onClick={handleSaveClick} style={{
+  padding: '8px 5px',
+  borderRadius: '10px',
+  backgroundColor: 'green',
+  color: '#fff',
+  fontWeight: 'bold',
+  cursor: 'pointer',
+  border: 'none',
+}}>
+  Save
+</button>
+{isSaveModalOpen && (
+  <div className="save-modal">
+    <form onSubmit={handleFormSubmit}>
+      <label>
+        Project Name:
+        <input
+          type="text"
+          value={projectName}
+          onChange={handleProjectNameChange}
+          required
+        />
+      </label>
+      <button type="submit" disabled={isSaving}>
+        {isSaving ? "Saving..." : "Save Project"}
+      </button>
+    </form>
+    <button onClick={() => setIsSaveModalOpen(false)}>Close</button>
+  </div>
+)}
+
+
       </div>
 
       <Stage
