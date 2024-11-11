@@ -302,6 +302,21 @@ const [isSaving, setIsSaving] = useState(false);
   }
 };
 
+
+
+// new canvas
+const handleNewProject = () => {
+  setLines([]);
+  setShapes([]);
+  setTexts([]);
+  setComments([]);
+  setProjectName("");
+  setSelectedId(null);
+  setEditingText(null);
+  setTextDraftValue("");
+  
+};
+
   
   return (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px' }}>
@@ -314,6 +329,24 @@ const [isSaving, setIsSaving] = useState(false);
           <span style={{ fontSize: '14px', marginBottom: '4px' }}>Brush Size</span>
           <input type="range" min="1" max="20" value={brushSize} onChange={(e) => setBrushSize(Number(e.target.value))} style={{ cursor: 'pointer' }} />
         </label>
+        {/* new  canvas button */}
+        <button
+  onClick={handleNewProject}
+  style={{
+    padding: '8px 15px',
+    borderRadius: '10px',
+    backgroundColor: '#FF5C5C',
+    color: '#fff',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    border: 'none',
+    transition: 'background-color 0.3s',
+  }}
+  onMouseOver={(e) => e.target.style.backgroundColor = '#FF3B3B'}
+  onMouseOut={(e) => e.target.style.backgroundColor = '#FF5C5C'}
+>
+  New Project
+</button>
         <button onClick={handleClearCanvas} style={{
           padding: '8px 5px',
           borderRadius: '10px',
