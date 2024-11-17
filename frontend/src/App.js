@@ -3,6 +3,7 @@ import Navbar from './components/navbar';
 import Canvas from './components/Canvas';
 import Signup from './components/signup';
 import { useState } from 'react';
+import Landingpage from './components/landing_page';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
   return (
     <Router>
       <div className="App">
+
         <div className="header">Collaborative Whiteboard</div>
 
         {/* Render Navbar and pass handleToolSelect to it */}
@@ -29,7 +31,8 @@ function App() {
       />
         {/* Define Routes */}
         <Routes>
-          <Route path="/" element={<Canvas selectedTool={selectedTool} />} />
+        <Route path="/" element={<Landingpage/>} />
+          <Route path="/whiteboard" element={<Canvas selectedTool={selectedTool} />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
       </div>
