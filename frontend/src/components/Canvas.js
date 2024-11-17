@@ -14,19 +14,14 @@ function Canvas({ selectedTool }) {
   const [brushSize, setBrushSize] = useState(5);
   const [startPos, setStartPos] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
-  const [editingText, setEditingText] = useState(null);
-  const [editingTextIndex, setEditingTextIndex] = useState(null);
+  const [selectedText, setSelectedText] = useState(null);
   const [selectedToolState, setSelectedTool] = useState(selectedTool);
-  const [textDraftValue, setTextDraftValue] = useState('');
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-const [projectName, setProjectName] = useState("");
-const [isSaving, setIsSaving] = useState(false);
+  const [projectName, setProjectName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const stageRef = useRef(null);
-  const textareaRef = useRef(null);
   const transformerRef = useRef(null);
-
-  // Initialize socket connection
   const socket = useRef(null);
 
   useEffect(() => {
@@ -55,33 +50,36 @@ const [isSaving, setIsSaving] = useState(false);
     }
   }, [selectedId]);
 
-  // New effect for handling text editing
+  // Handle keyboard events for text editing
   useEffect(() => {
-    if (editingText) {
-      const textNode = stageRef.current.findOne('#' + editingText.id);
-      if (textNode) {
-        const textPosition = textNode.absolutePosition();
-        const stageBox = stageRef.current.container().getBoundingClientRect();
+    if (selectedText) {
+      const handleKeyDown = (e) => {
+        if (!selectedText) return;
+
+        const newText = [...texts];
+        const textIndex = newText.findIndex(t => t.id === selectedText.id);
         
-        const textarea = textareaRef.current;
-        textarea.style.display = 'block';
-        textarea.style.position = 'absolute';
-        textarea.style.top = `${stageBox.top + textPosition.y}px`;
-        textarea.style.left = `${stageBox.left + textPosition.x}px`;
-        textarea.style.width = `${textNode.width() - textNode.padding() * 2}px`;
-        textarea.style.height = `${textNode.height() - textNode.padding() * 2}px`;
-        textarea.style.fontSize = `${textNode.fontSize()}px`;
-        textarea.style.border = '1px solid black';
-        textarea.style.padding = '5px';
-        textarea.style.overflow = 'hidden';
-        textarea.style.background = 'white';
-        textarea.style.outline = 'none';
-        textarea.style.resize = 'none';
-        textarea.value = textNode.text();
-        textarea.focus();
-      }
+        if (textIndex === -1) return;
+
+        if (e.key === 'Backspace') {
+          newText[textIndex].text = newText[textIndex].text.slice(0, -1);
+        } else if (e.key.length === 1) {
+          newText[textIndex].text += e.key;
+        } else if (e.key === 'Enter') {
+          newText[textIndex].text += '\n';
+        }
+
+        setTexts(newText);
+        emitDrawData({
+          ...newText[textIndex],
+          tool: 'text'
+        });
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
     }
-  }, [editingText]);
+  }, [selectedText]);
 
   const emitDrawData = (data) => {
     socket.current.emit('draw-data', data);
@@ -92,14 +90,7 @@ const [isSaving, setIsSaving] = useState(false);
     setIsDrawing(true);
     setStartPos(pos);
 
-    let newData;
-    if (selectedTool === 'pen' || selectedTool === 'eraser') {
-      newData = { tool: selectedTool, points: [pos.x, pos.y], color, strokeWidth: brushSize };
-      setLines([...lines, newData]);
-    } else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(selectedTool)) {
-      newData = { tool: selectedTool, startX: pos.x, startY: pos.y, endX: pos.x, endY: pos.y, color, fillColor };
-      setShapes([...shapes, newData]);
-    } else if (selectedTool === 'text') {
+    if (selectedTool === 'text') {
       const newText = {
         id: `text-${texts.length}`,
         x: pos.x,
@@ -114,24 +105,18 @@ const [isSaving, setIsSaving] = useState(false);
       };
       setTexts([...texts, newText]);
       setSelectedId(newText.id);
-      setEditingText(newText);
-      newData = newText;
-    } else if (selectedTool === 'comments') {
-      const newComment = {
-        id: `comment-${comments.length}`,
-        x: pos.x,
-        y: pos.y,
-        text: '',
-        width: 150,
-        height: 100,
-        color: color
-      };
-      setComments([...comments, newComment]);
-      setEditingText(newComment);
-      newData = newComment;
-    }
-    
-    if (newData) {
+      setSelectedText(newText);
+      emitDrawData({
+        ...newText,
+        tool: 'text'
+      });
+    } else if (selectedTool === 'pen' || selectedTool === 'eraser') {
+      const newData = { tool: selectedTool, points: [pos.x, pos.y], color, strokeWidth: brushSize };
+      setLines([...lines, newData]);
+      emitDrawData(newData);
+    } else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(selectedTool)) {
+      const newData = { tool: selectedTool, startX: pos.x, startY: pos.y, endX: pos.x, endY: pos.y, color, fillColor };
+      setShapes([...shapes, newData]);
       emitDrawData(newData);
     }
   };
@@ -164,15 +149,20 @@ const [isSaving, setIsSaving] = useState(false);
     }
   };
 
+  const handleStageClick = (e) => {
+    const clickedOnEmpty = e.target === e.target.getStage();
+    if (clickedOnEmpty) {
+      setSelectedId(null);
+      setSelectedText(null);
+    }
+  };
+
+  // Your existing functions remain the same
   const handleToolSelect = (tool) => {
     setSelectedTool(tool);
     if (tool === 'clear') {
       handleClearCanvas();
     }
-  };
-
-  const handleFeatureSelect = (feature) => {
-    console.log('Selected feature:', feature);
   };
 
   const handleClearCanvas = () => {
@@ -190,221 +180,90 @@ const [isSaving, setIsSaving] = useState(false);
     }
   };
 
-  const handleTextChange = (e) => {
-    const newText = e.target.value;
-    if (editingText) {
-      const updatedTexts = texts.map(t =>
-        t.id === editingText.id ? { ...t, text: newText } : t
-      );
-      setTexts(updatedTexts);
-      emitDrawData({ ...editingText, text: newText, tool: 'text' });
-    }
-  };
-
-  const handleTextareaBlur = () => {
-    const textarea = textareaRef.current;
-    textarea.style.display = 'none';
-    setEditingText(null);
-    setSelectedId(null);
-  };
-
-  // const handleSave = () => {
-  //   if (!projectName.trim()) {
-  //     alert('Please enter a project name');
-  //     return;
-  //   }
-    
-  //   const canvasData = {
-  //     projectName,
-  //     lines,
-  //     shapes,
-  //     texts,
-  //   };
-  //   const jsonData = JSON.stringify(canvasData);
-  
-  //   // Send jsonData to the server
-  //   saveToServer(jsonData);
-  // };
-
-  // const saveToServer = async (jsonData) => {
-  //   try {
-  //     const response = await fetch('http://localhost:8080/save-canvas', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ canvasData: jsonData }),
-  //     });
-  
-  //     if (response.ok) {
-  //       console.log('Canvas saved successfully');
-  //     } else {
-  //       console.error('Failed to save canvas');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error saving canvas:', error);
-  //   }
-  // };
   const handleSaveClick = () => {
     setIsSaveModalOpen(true);
   };
+
   const handleProjectNameChange = (e) => {
     setProjectName(e.target.value);
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-
-
-  
-    // Prevent submitting if project name is empty
     if (!projectName) {
       alert("Project name is required!");
       return;
     }
-  
-    setIsSaving(true); // Show loading indicator
-  
-    // Capture the canvas data
+    setIsSaving(true);
     const canvasData = {
       lines: lines,
       shapes: shapes,
       texts: texts,
     };
-  
-    // Save the project
     await saveToServer(projectName, canvasData);
   };
+
   const saveToServer = async (projectName, canvasData) => {
-  try {
-    const response = await fetch('http://localhost:8080/save-canvas', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        projectName: projectName,
-        canvasData: canvasData,
-      }),
-    });
+    try {
+      const response = await fetch('http://localhost:8080/save-canvas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectName: projectName,
+          canvasData: canvasData,
+        }),
+      });
 
-    if (response.ok) {
-      alert('Project saved successfully!');
-      setIsSaveModalOpen(false);
-    } else {
-      alert('Failed to save the project');
+      if (response.ok) {
+        alert('Project saved successfully!');
+        setIsSaveModalOpen(false);
+      } else {
+        alert('Failed to save the project');
+      }
+    } catch (error) {
+      console.error('Error saving project:', error);
+      alert('Error saving project');
+    } finally {
+      setIsSaving(false);
     }
-  } catch (error) {
-    console.error('Error saving project:', error);
-    alert('Error saving project');
-  } finally {
-    setIsSaving(false);
-  }
-};
+  };
 
+  const handleNewProject = () => {
+    setLines([]);
+    setShapes([]);
+    setTexts([]);
+    setComments([]);
+    setProjectName("");
+    setSelectedId(null);
+    setSelectedText(null);
+  };
 
-
-// new canvas
-const handleNewProject = () => {
-  setLines([]);
-  setShapes([]);
-  setTexts([]);
-  setComments([]);
-  setProjectName("");
-  setSelectedId(null);
-  setEditingText(null);
-  setTextDraftValue("");
-  
-};
-
-  
   return (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px' }}>
       <div style={{ display: 'flex', gap: '15px', padding: '7px 15px', backgroundColor: '#f0f0f0', borderRadius: '10px', boxShadow: '2px 4px 10px rgba(0, 0, 0, 0.2)', marginBottom: '20px' }}>
+        {/* Your existing toolbar buttons */}
         <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span style={{ fontSize: '14px', marginBottom: '4px' }}>Color</span>
-          <input type="color" value={color} onChange={(e) => setColor(e.target.value)} style={{ cursor: 'pointer', border: '2px solid transparent', borderRadius: '5px', padding: '5px', transition: 'border 0.3s' }} onMouseEnter={(e) => e.target.style.border = '2px solid black'} onMouseLeave={(e) => e.target.style.border = '2px solid transparent'} />
+          <input type="color" value={color} onChange={(e) => setColor(e.target.value)} style={{ cursor: 'pointer', border: '2px solid transparent', borderRadius: '5px', padding: '5px', transition: 'border 0.3s' }} />
         </label>
         <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span style={{ fontSize: '14px', marginBottom: '4px' }}>Brush Size</span>
           <input type="range" min="1" max="20" value={brushSize} onChange={(e) => setBrushSize(Number(e.target.value))} style={{ cursor: 'pointer' }} />
         </label>
-        {/* new  canvas button */}
-        <button
-  onClick={handleNewProject}
-  style={{
-    padding: '8px 15px',
-    borderRadius: '10px',
-    backgroundColor: '#FF5C5C',
-    color: '#fff',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    border: 'none',
-    transition: 'background-color 0.3s',
-  }}
-  onMouseOver={(e) => e.target.style.backgroundColor = '#FF3B3B'}
-  onMouseOut={(e) => e.target.style.backgroundColor = '#FF5C5C'}
->
-  New Project
-</button>
-        <button onClick={handleClearCanvas} style={{
-          padding: '8px 5px',
-          borderRadius: '10px',
-          backgroundColor: 'gray',
-          color: '#fff',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          border: 'none',
-          transition: 'background-color 0.3s',
-        }} onMouseOver={(e) => e.target.style.backgroundColor = 'blue'}
-          onMouseOut={(e) => e.target.style.backgroundColor = 'dodgerblue'}>
+        <button onClick={handleNewProject} style={{ padding: '8px 15px', borderRadius: '10px', backgroundColor: '#FF5C5C', color: '#fff', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
+          New Project
+        </button>
+        <button onClick={handleClearCanvas} style={{ padding: '8px 5px', borderRadius: '10px', backgroundColor: 'gray', color: '#fff', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
           Clear Canvas
         </button>
-        <button onClick={handleUndo} style={{
-          padding: '1px 7px 3px',
-          borderRadius: '5px',
-          backgroundColor: 'dodgerblue',
-          color: '#fff',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          border: 'none',
-          transition: 'background-color 0.3s',
-        }} onMouseOver={(e) => e.target.style.backgroundColor = 'blue'}
-          onMouseOut={(e) => e.target.style.backgroundColor = 'dodgerblue'}>
+        <button onClick={handleUndo} style={{ padding: '1px 7px 3px', borderRadius: '5px', backgroundColor: 'dodgerblue', color: '#fff', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
           Undo
         </button>
-        <button onClick={handleSaveClick} style={{
-  padding: '8px 5px',
-  borderRadius: '10px',
-  backgroundColor: 'green',
-  color: '#fff',
-  fontWeight: 'bold',
-  cursor: 'pointer',
-  border: 'none',
-}}>
-  Save
-</button>
-{isSaveModalOpen && (
-  <div className="save-modal">
-    <form onSubmit={handleFormSubmit}>
-      <label>
-        Project Name:
-        <input
-          type="text"
-          value={projectName}
-          onChange={handleProjectNameChange}
-          required
-        />
-      </label>
-      <button type="submit" disabled={isSaving}>
-        {isSaving ? "Saving..." : "Save Project"}
-      </button>
-    </form>
-    <button onClick={() => setIsSaveModalOpen(false)}>Close</button>
-  </div>
-)}
-
-
+        <button onClick={handleSaveClick} style={{ padding: '8px 5px', borderRadius: '10px', backgroundColor: 'green', color: '#fff', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
+          Save
+        </button>
       </div>
 
       <Stage
@@ -414,13 +273,7 @@ const handleNewProject = () => {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onClick={(e) => {
-          const clickedOnEmpty = e.target === e.target.getStage();
-          if (clickedOnEmpty) {
-            setSelectedId(null);
-            setEditingText(null);
-          }
-        }}
+        onClick={handleStageClick}
       >
         <Layer>
           <Rect 
@@ -475,7 +328,7 @@ const handleNewProject = () => {
               id={text.id}
               x={text.x}
               y={text.y}
-              text={text.text || 'Click to edit'}
+              text={text.text || 'Click to type'}
               fontSize={text.fontSize}
               fill={text.color}
               width={text.width}
@@ -484,10 +337,7 @@ const handleNewProject = () => {
               draggable={true}
               onClick={() => {
                 setSelectedId(text.id);
-                setEditingText(text);
-              }}
-              onDblClick={() => {
-                setEditingText(text);
+                setSelectedText(text);
               }}
               onTransform={(e) => {
                 const node = e.target;
@@ -501,79 +351,101 @@ const handleNewProject = () => {
             />
           ))}
 
-          {comments.map((comment) => (
-            <React.Fragment key={comment.id}>
-              <Rect
-                x={comment.x}
-                y={comment.y}
-                width={comment.width}
-                height={comment.height}
-                fill="yellow"
-                stroke="black"
-                cornerRadius={5}
-              />
-              <Text
-                x={comment.x + 5}
-                y={comment.y + 5}
-                text={comment.text || 'Add comment here...'}
-                width={comment.width - 10}
-                height={comment.height - 10}
-                fontSize={14}
-                fill="black"
-                onClick={() => setEditingText(comment)}
-              />
-            </React.Fragment>
-          ))}
-
-          {/* Transformer for text resizing */}
           {selectedId && (
             <Transformer
               ref={transformerRef}
               boundBoxFunc={(oldBox, newBox) => {
-                if (newBox.width < 20 || newBox.height < 20) {
-                  return oldBox;
-                }
-                return newBox;
+                return newBox.width < 20 || newBox.height < 20 ? oldBox : newBox;
               }}
             />
           )}
         </Layer>
       </Stage>
 
-      {/* Textarea for editing text and comments */}
-      <textarea
-        ref={textareaRef}
-        style={{
-          display: 'none',
-          position: 'absolute',
-          border: '1px solid black',
-          padding: '5px',
-          overflow: 'hidden',
-          resize: 'both',
-          minHeight: '50px',
-          minWidth: '100px',
-          background: 'white'
-        }}
-        onChange={(e) => {
-          if (editingText) {
-            if (editingText.id.startsWith('text')) {
-              const updatedTexts = texts.map(t =>
-                t.id === editingText.id ? { ...t, text: e.target.value } : t
-              );
-              setTexts(updatedTexts);
-            } else {
-              const updatedComments = comments.map(c =>
-                c.id === editingText.id ? { ...c, text: e.target.value } : c
-              );
-              setComments(updatedComments);
-            }
-          }
-        }}
-        onBlur={() => {
-          textareaRef.current.style.display = 'none';
-          setEditingText(null);
-        }}
-      />
+      {isSaveModalOpen && (
+        <div className="save-modal">
+          <form onSubmit={handleFormSubmit}>
+            <label>
+              Project Name:
+              <input
+                type="text"
+                value={projectName}
+                onChange={handleProjectNameChange}
+                required
+              />
+            </label>
+            <button type="submit" disabled={isSaving}>
+              {isSaving ? "Saving..." : "Save Project"}
+            </button>
+          </form>
+          <button 
+            onClick={() => setIsSaveModalOpen(false)}
+            style={{
+              padding: '8px 15px',
+              borderRadius: '5px',
+              backgroundColor: '#ff4444',
+              color: 'white',
+              border: 'none',
+              marginTop: '10px',
+              cursor: 'pointer'
+            }}
+          >
+            Close
+          </button>
+        </div>
+      )}
+
+      <style jsx>{`
+        .save-modal {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background-color: white;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+          z-index: 1000;
+        }
+
+        .save-modal form {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        .save-modal label {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+
+        .save-modal input {
+          padding: 8px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          font-size: 14px;
+        }
+
+        .save-modal button[type="submit"] {
+          padding: 8px 15px;
+          background-color: #4CAF50;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-weight: bold;
+        }
+
+        .save-modal button[type="submit"]:disabled {
+          background-color: #cccccc;
+          cursor: not-allowed;
+        }
+
+        .save-modal button[type="submit"]:hover:not(:disabled) {
+          background-color: #45a049;
+        }
+      `}</style>
     </div>
   );
 }
