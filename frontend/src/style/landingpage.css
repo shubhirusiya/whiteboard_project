@@ -1,0 +1,82 @@
+.intro{
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    height:70vh;
+    width: 100%;
+    float: right;
+}
+
+.pic img {
+    margin-right: 22px;
+    width: 400px; /* Adjust based on your preference */
+    /* Optional: Limit the image width */
+    height: 70vh;
+    float: right;
+  }
+  .textarea{
+    float: left;
+    margin: 40px;
+    text-align: left;
+
+    
+  }
+  .textarea h1{
+    font-size: 50px;
+    color: rgb(43, 42, 42);
+  }
+  .textarea p{
+    font-size: 30px;
+    text-align: left;
+    color: rgb(48, 48, 48);
+  }
+  .container {
+    height: 60px;
+    width: 120px;
+    display: flex;
+    justify-content: left;
+    align-items: left;
+    background-color: white;
+    display: flex;
+    float: left;
+    margin: 20px;
+  }
+
+  .btn {
+    padding: 10px 50px;
+    border: none;
+    outline: none;
+    position: relative;
+    z-index: 1;
+    border-radius: 5px;
+    background: linear-gradient(to right, #00FFA3, #DC1FFF);
+    cursor: pointer;
+  }
+  .btn::before {
+    content: "";
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    top: 1px;
+    bottom: 1px;
+    border-radius: 4px;
+    background-color: white;
+    z-index: -1;
+    transition: 200ms
+  }
+  .btn::after {
+    content: attr(data);
+    font-size: 16px;
+    background: linear-gradient(to left, #00FFA3, #DC1FFF);
+    -webkit-background-clip: text;
+    color: transparent;
+    transition: 200ms
+  }
+  .btn:hover::before {
+    opacity: 50%;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+  }
+  .btn:hover::after{
+    color: white;
+  }

@@ -66,7 +66,7 @@ const LineTrail = () => {
       width={window.innerWidth}
       height={window.innerHeight}
       onMouseMove={handleMouseMove}
-      style={{ display: "block", cursor: "none" }}
+      style={{ display: "block", cursor: "none" ,position: "absolute",zIndex: 9999,}}
     />
   );
 };
