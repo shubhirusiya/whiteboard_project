@@ -1,15 +1,22 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: visible;
+}
+
 .intro{
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    height:70vh;
+    height:500px;
     width: 100%;
     float: right;
+    margin-bottom: 30px;
 }
 
 .pic img {
     margin-right: 22px;
     width: 400px; /* Adjust based on your preference */
     /* Optional: Limit the image width */
-    height: 70vh;
+    height: 65vh;
     float: right;
   }
   .textarea{
@@ -80,3 +87,19 @@
   .btn:hover::after{
     color: white;
   }
+
+
+  .pic1 img{
+    height: 500px;
+    width: 500px;
+    float: left;
+    margin: 20px;
+
+  }
+  .intro{
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    height:500px;
+    width: 100%;
+    float: right;
+    margin-bottom: 30px;
+}
