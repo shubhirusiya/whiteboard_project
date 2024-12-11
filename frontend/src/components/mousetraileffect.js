@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from "react";
-// import "./LineTrail.css";
 
 const LineTrail = () => {
   const canvasRef = useRef(null);
@@ -13,30 +12,44 @@ const LineTrail = () => {
     setTrail([]); // Clear the trail
   };
 
-  const handleMouseMove = (event) => {
+  useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return; // Ensure the canvas exists before proceeding
 
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const handleResize = () => {
+      if (canvas) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+    };
 
-    // Add the new point to the trail
-    setTrail((prevTrail) => {
-      const newTrail = [...prevTrail, { x, y }];
-      return newTrail.slice(-maxTrail); // Keep only the latest points
-    });
+    const handleMouseMove = (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
 
-    // Reset the timeout to clear the trail
-    if (trailTimeoutRef.current) {
-      clearTimeout(trailTimeoutRef.current);
-    }
-    trailTimeoutRef.current = setTimeout(clearTrail, trailFadeTimeout);
-  };
+      setTrail((prevTrail) => {
+        const newTrail = [...prevTrail, { x, y }];
+        return newTrail.slice(-maxTrail); // Keep only the latest points
+      });
+
+      if (trailTimeoutRef.current) {
+        clearTimeout(trailTimeoutRef.current);
+      }
+      trailTimeoutRef.current = setTimeout(clearTrail, trailFadeTimeout);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return; // Ensure the canvas is available before using it
+    if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
 
@@ -52,7 +65,7 @@ const LineTrail = () => {
         }
 
         ctx.strokeStyle = "#aebbff"; // Trail color
-        ctx.lineWidth = 7; // Trail thickness
+        ctx.lineWidth = 11; // Trail thickness
         ctx.stroke();
       }
     };
@@ -65,8 +78,15 @@ const LineTrail = () => {
       ref={canvasRef}
       width={window.innerWidth}
       height={window.innerHeight}
-      onMouseMove={handleMouseMove}
-      style={{ display: "block", cursor: "none" ,position: "absolute",zIndex: 9999,}}
+      style={{
+        display: "block",
+        cursor: "none",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        zIndex: 9999,
+        pointerEvents: "none", // Ensure the canvas doesn't interfere with other elements
+      }}
     />
   );
 };
