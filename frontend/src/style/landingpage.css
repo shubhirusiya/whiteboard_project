@@ -76,6 +76,7 @@ html, body {
   overflow: hidden;
   width: 100%;
   height: 100%;
+  font-size: medium;
 }
 
 .btn::before {
@@ -199,4 +200,26 @@ html, body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(to bottom, #DC1FFF, #00FFA3);
+}
+
+.fourthintro{
+  font-size: 30px;
+  text-align: center;
+  
+
+}
+.pics{
+  display: flex;
+  float: left;
+}
+.pic2 img{
+  display: flex;
+  justify-content: center;
+  width: 600px;
+  height: 600px;
+  align-items: center;
+  margin-left: 200px;
+  margin-right: 300px;
+  margin-top: 0px;
+  float: right;
 }
