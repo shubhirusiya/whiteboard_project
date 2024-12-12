@@ -126,6 +126,7 @@ function LandingPage() {
         
       
       <div className="pics">
+        
       <div className="pic3"><img src="./bg1.jpg" alt="" /></div>
       <div className="pic2"><img src="./note5.png" alt="" /></div>
       <div className="pic3"><img src="./bg1.jpg" alt="" /></div>
