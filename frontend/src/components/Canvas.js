@@ -30,6 +30,7 @@ function Canvas({ selectedTool }) {
     socket.current.on('draw-data', (data) => {
       if (data.tool === 'pen' || data.tool === 'eraser') {
         setLines((prevLines) => [...prevLines, data]);
+       
       }
       else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(data.tool)) {
         setShapes((prevShapes) => [...prevShapes, data]);
@@ -112,8 +113,10 @@ function Canvas({ selectedTool }) {
       });
     } else if (selectedTool === 'pen' || selectedTool === 'eraser') {
       const newData = { tool: selectedTool, points: [pos.x, pos.y], color, strokeWidth: brushSize };
+      
       setLines([...lines, newData]);
       emitDrawData(newData);
+      
     } else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(selectedTool)) {
       const newData = { tool: selectedTool, startX: pos.x, startY: pos.y, endX: pos.x, endY: pos.y, color, fillColor };
       setShapes([...shapes, newData]);
@@ -132,6 +135,8 @@ function Canvas({ selectedTool }) {
       lines.splice(lines.length - 1, 1, lastLine);
       setLines([...lines]);
       emitDrawData(lastLine);
+      
+
     } else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(selectedTool)) {
       const newShapes = [...shapes];
       const lastShape = newShapes[newShapes.length - 1];
@@ -241,7 +246,7 @@ function Canvas({ selectedTool }) {
   };
 
   return (
-    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px' }}>
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px',backgroundColor:'lightgray' }}>
       <div style={{ display: 'flex', gap: '15px', padding: '7px 15px', backgroundColor: '#f0f0f0', borderRadius: '10px', boxShadow: '2px 4px 10px rgba(0, 0, 0, 0.2)', marginBottom: '20px' }}>
         {/* Your existing toolbar buttons */}
         <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -281,7 +286,7 @@ function Canvas({ selectedTool }) {
             y={0} 
             width={window.innerWidth} 
             height={window.innerHeight} 
-            fill="lightgrey" 
+            fill="white" 
             listening={false} 
           />
 
