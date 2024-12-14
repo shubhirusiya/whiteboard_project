@@ -22,8 +22,7 @@ function AppContent() {
 
   return (
     <div className="App">
-      <div className="header">Collaborative Whiteboard</div>
-
+    
       {/* Conditionally render Navbar only for the Canvas page */}
       {location.pathname === '/canvas' && (
         <Navbar onToolSelect={handleToolSelect} onFeatureSelect={handleFeatureSelect} />

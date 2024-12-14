@@ -29,4 +29,27 @@ router.post('/save-canvas', async (req, res) => {
   console.log(req.body);  // This is for debugging, optional
 });
 
+router.get('/get-canvas/:projectName',async(req,res)=>{
+  try{
+    const{projectName}=req.params;
+    if(!projectName){
+      return res.status(400).send('Project name is required');
+
+    }
+    const canvas=await Canvas.findOne({projectName});
+
+    if(!canvas){
+      return res.status(404).send('Canvas not found');
+
+    }
+
+    res.status(200).json(canvas.canvasData);
+
+  }
+  catch(error){
+    console.log(error);
+    res.status(500).send("Error retrieving canvas data");
+  }
+})
+
 module.exports = router;

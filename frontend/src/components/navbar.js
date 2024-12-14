@@ -138,9 +138,7 @@ const Navbar = ({ onToolSelect, onFeatureSelect }) => {
           </div>
         </div>
         
-        <Link to="/signup" className="nav-item sign-in tool-tooltip" data-tooltip="Sign In">
-          <LogIn className="icon" /> Sign In
-        </Link>
+        
       </div>
     </div>
   );

@@ -29,7 +29,8 @@ export default function Signup() {
 
       const data = await response.json();
       if (response.ok) {
-        console.log('User registered successfully:', data);
+        
+        alert('User registered successfully:');
         // Optionally, redirect or show a success message
       } else {
         console.error('Error registering user:', data);
