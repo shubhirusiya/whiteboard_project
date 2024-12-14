@@ -1,56 +1,172 @@
+:root {
+  --bg-primary: #f4f4f6;
+  --bg-secondary: #ffffff;
+  --primary-color: #007bff;
+  --text-color: #333;
+  --border-radius: 12px;
+  --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
 .navbar {
-  background-color: #f0f0f0;
-  padding: 10px;
+  background-color: var(--bg-primary);
+  padding: 10px 20px;
   display: flex;
+  justify-content: center;
   align-items: center;
   width: 100%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  gap: 20px;
 }
 
 .toolbar {
   display: flex;
-  gap: 10px;
   align-items: center;
-  margin-left: auto;
-}
-
-.actions {
-  display: flex;
-  gap: 20px;
-  align-items: center;
+  background-color: var(--bg-secondary);
+  padding: 8px 16px;
+  border-radius: 50px;
+  box-shadow: var(--shadow);
+  gap: 8px;
+  flex-grow: 1;
+  justify-content: center;
+  max-width: 800px;
+  position: relative;
 }
 
 .nav-item {
   padding: 10px;
-  background-color: #e0e0e0;
+  background-color: transparent;
   border: none;
-  border-radius: 5px;
+  border-radius: 50%;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  color: var(--text-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item .icon {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2px;
 }
 
 .nav-item:hover {
-  background-color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
+  transform: scale(1.1);
+}
+
+.nav-item.active {
+  background-color: var(--primary-color);
   color: white;
 }
 
-.nav-item.sign-in {
-  background-color: #4CAF50;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
+.color-picker-container {
+  position: relative;
+}
+
+.color-picker-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-palette {
+  position: absolute;
+  top: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  background-color: var(--bg-secondary);
+  padding: 12px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  z-index: 10;
+  animation: fadeIn 0.3s ease;
+}
+
+.color-option {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.1);
   cursor: pointer;
-  font-size: 16px;
-  margin-left: 200px;
+  transition: transform 0.2s ease;
 }
 
-.nav-item.sign-in:hover {
-  background-color: #45a049;
+.color-option:hover {
+  transform: scale(1.2);
 }
+
+.sign-in {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.sign-in:hover {
+  background-color: #0056b3;
+}
+
+.tool-tooltip {
+  position: relative;
+}
+
+.tool-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  margin-bottom: 6px;
+  z-index: 20;
+}
+
+.tool-tooltip:hover::after {
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translate(-50%, -20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translate(-50%, 0); 
+  }
+}
+
+
 
 .more-options {
   background: transparent;

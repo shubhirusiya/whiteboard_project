@@ -7,6 +7,7 @@ function Canvas({ selectedTool }) {
   const [lines, setLines] = useState([]);
   const [shapes, setShapes] = useState([]);
   const [texts, setTexts] = useState([]);
+  const [stickyNotes, setStickyNotes] = useState([]);
   const [comments, setComments] = useState([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState('black');
@@ -15,6 +16,8 @@ function Canvas({ selectedTool }) {
   const [startPos, setStartPos] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
   const [selectedText, setSelectedText] = useState(null);
+  
+  
   const [selectedToolState, setSelectedTool] = useState(selectedTool);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
@@ -51,7 +54,14 @@ function Canvas({ selectedTool }) {
     }
   }, [selectedId]);
 
+
+
+
   // Handle keyboard events for text editing
+
+
+
+  
   useEffect(() => {
     if (selectedText) {
       const handleKeyDown = (e) => {
@@ -77,11 +87,45 @@ function Canvas({ selectedTool }) {
         });
       };
 
+
+    
+
+
+
+
+
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
     }
   }, [selectedText]);
 
+useEffect(() => {
+    if (selectedText && 'backgroundColor' in selectedText) {
+      const handleKeyDown = (e) => {
+        const newStickyNotes = [...stickyNotes];
+        const noteIndex = newStickyNotes.findIndex(note => note.id === selectedText.id);
+        
+        if (noteIndex === -1) return;
+
+        if (e.key === 'Backspace') {
+          newStickyNotes[noteIndex].text = newStickyNotes[noteIndex].text.slice(0, -1);
+        } else if (e.key.length === 1) {
+          newStickyNotes[noteIndex].text += e.key;
+        } else if (e.key === 'Enter') {
+          newStickyNotes[noteIndex].text += '\n';
+        }
+
+        setStickyNotes(newStickyNotes);
+        emitDrawData({
+          ...newStickyNotes[noteIndex],
+          tool: 'sticky-note'
+        });
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [selectedText, stickyNotes]);
   const emitDrawData = (data) => {
     socket.current.emit('draw-data', data);
   };
@@ -91,7 +135,35 @@ function Canvas({ selectedTool }) {
     setIsDrawing(true);
     setStartPos(pos);
 
-    if (selectedTool === 'text') {
+     // Sticky Note creation
+     if (selectedTool === 'sticky-note') {
+      const newStickyNote = {
+        id: `sticky-note-${stickyNotes.length}`,
+        x: pos.x,
+        y: pos.y,
+        text: '',
+        width: 150,
+        height: 159,
+        fontSize: 17,
+        draggable: true,
+        color: color || '#FFFF88', // Default to yellow sticky note
+        backgroundColor: color || '#FFFF88'
+      };
+      setStickyNotes(prevNotes => [...prevNotes, newStickyNote]);
+      
+      setSelectedId(newStickyNote.id);
+      setSelectedText(newStickyNote);
+      emitDrawData({
+        ...newStickyNote,
+        tool: 'sticky-note'
+      });
+    }
+
+
+
+    
+
+    else if (selectedTool === 'text') {
       const newText = {
         id: `text-${texts.length}`,
         x: pos.x,
@@ -112,12 +184,18 @@ function Canvas({ selectedTool }) {
         tool: 'text'
       });
     } else if (selectedTool === 'pen' || selectedTool === 'eraser') {
-      const newData = { tool: selectedTool, points: [pos.x, pos.y], color, strokeWidth: brushSize };
+      const newData = { 
+        tool: selectedTool, 
+        points: [pos.x, pos.y], 
+        color: selectedTool === 'eraser' ? 'white' : color, 
+        strokeWidth: selectedTool === 'eraser' ? 10 : brushSize // Optional: make eraser wider
+      };
       
       setLines([...lines, newData]);
       emitDrawData(newData);
+    }
       
-    } else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(selectedTool)) {
+     else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(selectedTool)) {
       const newData = { tool: selectedTool, startX: pos.x, startY: pos.y, endX: pos.x, endY: pos.y, color, fillColor };
       setShapes([...shapes, newData]);
       emitDrawData(newData);
@@ -154,6 +232,11 @@ function Canvas({ selectedTool }) {
     }
   };
 
+
+
+
+
+
   const handleStageClick = (e) => {
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
@@ -174,6 +257,7 @@ function Canvas({ selectedTool }) {
     setLines([]);
     setShapes([]);
     setTexts([]);
+    setStickyNotes([]);
   };
 
   const handleUndo = () => {
@@ -239,19 +323,86 @@ function Canvas({ selectedTool }) {
     setLines([]);
     setShapes([]);
     setTexts([]);
+    setStickyNotes([]); // Reset sticky notes
     setComments([]);
     setProjectName("");
     setSelectedId(null);
     setSelectedText(null);
   };
 
+
+
+  useEffect(() => {
+    if (selectedText && 'backgroundColor' in selectedText) {
+      const handleKeyDown = (e) => {
+        const newStickyNotes = [...stickyNotes];
+        const noteIndex = newStickyNotes.findIndex(note => note.id === selectedText.id);
+        
+        if (noteIndex === -1) return;
+
+        if (e.key === 'Backspace') {
+          newStickyNotes[noteIndex].text = newStickyNotes[noteIndex].text.slice(0, -1);
+        } else if (e.key.length === 1) {
+          newStickyNotes[noteIndex].text += e.key;
+        } else if (e.key === 'Enter') {
+          newStickyNotes[noteIndex].text += '\n';
+        }
+
+        setStickyNotes(newStickyNotes);
+        emitDrawData({
+          ...newStickyNotes[noteIndex],
+          tool: 'sticky-note'
+        });
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [selectedText, stickyNotes]);
+
+  // Handle color change for selected sticky note
+  const handleColorChange = (newColor) => {
+    if (selectedText && 'backgroundColor' in selectedText) {
+      const updatedStickyNotes = stickyNotes.map(note => 
+        note.id === selectedText.id 
+          ? { ...note, backgroundColor: newColor, color: newColor } 
+          : note
+      );
+      
+      setStickyNotes(updatedStickyNotes);
+      
+      // Update the selected note
+      const updatedNote = updatedStickyNotes.find(note => note.id === selectedText.id);
+      setSelectedText(updatedNote);
+      
+      // Emit to socket
+      emitDrawData({
+        ...updatedNote,
+        tool: 'sticky-note'
+      });
+    }
+  };
+
+
+
+
+
+
   return (
-    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px',backgroundColor:'lightgray' }}>
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px',backgroundColor:'#f0f0f0',padding: '20px', 
+      borderRadius: '15px' }}>
       <div style={{ display: 'flex', gap: '15px', padding: '7px 15px', backgroundColor: '#f0f0f0', borderRadius: '10px', boxShadow: '2px 4px 10px rgba(0, 0, 0, 0.2)', marginBottom: '20px' }}>
         {/* Your existing toolbar buttons */}
         <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span style={{ fontSize: '14px', marginBottom: '4px' }}>Color</span>
-          <input type="color" value={color} onChange={(e) => setColor(e.target.value)} style={{ cursor: 'pointer', border: '2px solid transparent', borderRadius: '5px', padding: '5px', transition: 'border 0.3s' }} />
+          <input type="color" value={color} onChange={(e) => 
+          {setColor(e.target.value);
+            if (selectedText && 'backgroundColor' in selectedText) {
+              handleColorChange(e.target.value);
+            }
+          }} 
+          
+           style={{ cursor: 'pointer', border: '2px solid transparent', borderRadius: '5px', padding: '5px', transition: 'border 0.3s' }} />
         </label>
         <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span style={{ fontSize: '14px', marginBottom: '4px' }}>Brush Size</span>
@@ -275,32 +426,113 @@ function Canvas({ selectedTool }) {
         width={window.innerWidth * 0.8}
         height={window.innerHeight * 0.8}
         ref={stageRef}
+        style={{
+          backgroundColor: 'white',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08)',
+          borderRadius: '10px', // Optional: rounded corners for the canvas
+          border: '1px solid #e0e0e0' // Optional: subtle border
+        }}
+
         onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
+        onMouseMove={(e) => {          
+          if (selectedTool !== 'sticky-note') {
+            handleMouseMove(e);
+          }
+        }}
+
+
         onMouseUp={handleMouseUp}
-        onClick={handleStageClick}
+        onClick={(e) => {
+          const clickedOnEmpty = e.target === e.target.getStage();
+          if (clickedOnEmpty) {
+            setSelectedId(null);
+            setSelectedText(null);
+          }
+        }}
+        
       >
         <Layer>
-          <Rect 
-            x={0} 
-            y={0} 
-            width={window.innerWidth} 
-            height={window.innerHeight} 
-            fill="white" 
-            listening={false} 
-          />
+        <Rect 
+  x={0} 
+  y={0} 
+  width={window.innerWidth} 
+  height={window.innerHeight} 
+  fill="white" 
+  listening={false} 
+  shadowColor="rgba(0,0,0,0.2)"
+  shadowBlur={15}
+  shadowOffsetX={5}
+  shadowOffsetY={5}
+/>
+
+
+{stickyNotes.map((note) => (
+            <React.Fragment key={note.id}>
+              <Rect
+                id={note.id}
+                x={note.x}
+                y={note.y}
+                width={note.width}
+                height={note.height}
+                fill={note.backgroundColor}
+                stroke="rgba(0,0,0,0.2)"
+                shadowColor="rgba(0,0,0,0.2)"
+                shadowBlur={10}
+                shadowOffsetX={3}
+                shadowOffsetY={3}
+                draggable={true}
+                onClick={() => {
+                  setSelectedId(note.id);
+                  setSelectedText(note);
+
+
+                }}
+                onDragEnd={(e) => {
+                  const updatedNotes = stickyNotes.map(n => 
+                    n.id === note.id 
+                      ? { ...n, x: e.target.x(), y: e.target.y() } 
+                      : n
+                  );
+                  setStickyNotes(updatedNotes);
+                  emitDrawData({
+                    ...note,
+                    x: e.target.x(),
+                    y: e.target.y(),
+                    tool: 'sticky-note'
+                  });
+                }}
+
+
+              />
+              <Text
+                x={note.x + 10}
+                y={note.y + 10}
+                width={note.width - 20}
+                height={note.height - 20}
+                text={note.text || 'Click to type'}
+                fontSize={note.fontSize}
+                fill="black"
+                draggable={false}
+                onClick={() => {
+                  setSelectedId(note.id);
+                  setSelectedText(note);
+                }}
+              />
+            </React.Fragment>
+          ))}
+
 
           {lines.map((line, index) => (
-            <Line
-              key={index}
-              points={line.points}
-              stroke={line.color}
-              strokeWidth={line.strokeWidth}
-              lineCap="round"
-              lineJoin="round"
-              globalCompositeOperation={line.tool === 'eraser' ? 'destination-out' : 'source-over'}
-            />
-          ))}
+  <Line
+    key={index}
+    points={line.points}
+    stroke={line.tool === 'eraser' ? 'white' : line.color} // Change stroke color for eraser
+    strokeWidth={line.strokeWidth}
+    lineCap="round"
+    lineJoin="round"
+    globalCompositeOperation={line.tool === 'eraser' ? 'destination-out' : 'source-over'}
+  />
+))}
 
           {shapes.map((shape, index) => {
             const { tool, startX, startY, endX, endY, color, fillColor } = shape;

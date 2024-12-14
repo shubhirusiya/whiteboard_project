@@ -1,16 +1,38 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { MoreVertical, StickyNote, MessageCircle, MessageSquare, Save } from 'lucide-react';
+import { 
+  MoreVertical, 
+  StickyNote, 
+  FileText, 
+  Save, 
+  Pen, 
+  Eraser, 
+  Square, 
+  Circle, 
+  Triangle, 
+  Minus, 
+  Type, 
+  Trash2, 
+  MessageCircle,
+  ArrowRight,
+  LogIn,
+  Palette,
+  Zap
+} from 'lucide-react';
 import '../style/navbar.css';
 
 const Navbar = ({ onToolSelect, onFeatureSelect }) => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [activeTool, setActiveTool] = useState(null);
+  const [colorPicker, setColorPicker] = useState(false);
   const dropdownRef = useRef(null);
+  const [selectedColor, setSelectedColor] = useState('#007bff');
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
+        setColorPicker(false);
       }
     };
 
@@ -20,6 +42,11 @@ const Navbar = ({ onToolSelect, onFeatureSelect }) => {
     };
   }, []);
 
+  const handleToolSelect = (tool) => {
+    onToolSelect(tool);
+    setActiveTool(tool);
+  };
+
   const handleFeatureSelect = (feature) => {
     if (onFeatureSelect) {
       onFeatureSelect(feature);
@@ -27,16 +54,28 @@ const Navbar = ({ onToolSelect, onFeatureSelect }) => {
     setShowDropdown(false);
   };
 
+  const handleColorChange = (color) => {
+    setSelectedColor(color);
+    setColorPicker(false);
+  };
+
+  const colorPalette = [
+    '#007bff', '#28a745', '#dc3545', '#ffc107', 
+    '#6f42c1', '#17a2b8', '#343a40', '#000000'
+  ];
+
   return (
     <div className="navbar">
-      <div className="dropdown-container">
-        <button
-          className="more-options"
-          onClick={() => setShowDropdown(!showDropdown)}
-        >
-          <MoreVertical />
-        </button>
-        {showDropdown && (
+      <div className="navbar-wrapper">
+        <div className="dropdown-container">
+          <button
+            className="more-options tool-tooltip"
+            onClick={() => setShowDropdown(!showDropdown)}
+            data-tooltip="More Options"
+          >
+            <MoreVertical className="icon" />
+          </button>
+          {showDropdown && (
           <div className="dropdown-menu" ref={dropdownRef}>
             <button onClick={() => handleFeatureSelect('new')} className="dropdown-item">
               <StickyNote /> New
@@ -50,24 +89,61 @@ const Navbar = ({ onToolSelect, onFeatureSelect }) => {
           </div>
         )}
       </div>
-      <div className="toolbar">
-        <button onClick={() => onToolSelect('pen')} className="nav-item">🖊 Pen</button>
-        <button onClick={() => onToolSelect('eraser')} className="nav-item">🧽 Eraser</button>
-        <button onClick={() => onToolSelect('rect')} className="nav-item">⬛ Rectangle</button>
-        <button onClick={() => onToolSelect('circle')} className="nav-item">⭕ Circle</button>
-        <button onClick={() => onToolSelect('triangle')} className="nav-item">🔺 Triangle</button>
-        <button onClick={() => onToolSelect('line')} className="nav-item">📏 Line</button>
-        <button onClick={() => onToolSelect('arrow')} className="nav-item">➡ Arrow</button>
-        <button onClick={() => onToolSelect('text')} className="nav-item">🅰 Text</button>
-        <button onClick={() => onToolSelect('clear')} className="nav-item">🗑 Clear</button>
-        <button onClick={() => onToolSelect('sticky-notes')} className="nav-item">📋 Sticky Notes</button>
-        <button onClick={() => onToolSelect('comments')} className="nav-item">💬 Comments</button>
-        <button onClick={() => onToolSelect('Chat')} className="nav-item">💾 Chat</button>
+        
+        <div className="toolbar">
+          {[
+            { tool: 'pen', icon: Pen, label: 'Pen' },
+            { tool: 'eraser', icon: Eraser, label: 'Eraser' },
+            { tool: 'rect', icon: Square, label: 'Rectangle' },
+            { tool: 'circle', icon: Circle, label: 'Circle' },
+            { tool: 'triangle', icon: Triangle, label: 'Triangle' },
+            { tool: 'line', icon: Minus, label: 'Line' },
+            { tool: 'arrow', icon: ArrowRight, label: 'Arrow' },
+            { tool: 'text', icon: Type, label: 'Text' },
+            { tool: 'clear', icon: Trash2, label: 'Clear' },
+            { tool: 'sticky-note', icon: StickyNote, label: 'Sticky' },
+            { tool: 'Chat', icon: MessageCircle, label: 'Chat' }
+          ].map(({ tool, icon: Icon, label }) => (
+            <button 
+              key={tool}
+              onClick={() => handleToolSelect(tool)} 
+              className={`nav-item tool-tooltip ${activeTool === tool ? 'active' : ''}`}
+              data-tooltip={label}
+            >
+              <Icon className="icon" />
+            </button>
+          ))}
+          
+          <div className="color-picker-container">
+            <button 
+              className="nav-item tool-tooltip color-picker-btn"
+              onClick={() => setColorPicker(!colorPicker)}
+              style={{ backgroundColor: selectedColor }}
+              data-tooltip="Color Picker"
+            >
+              <Palette className="icon" />
+            </button>
+            {colorPicker && (
+              <div className="color-palette">
+                {colorPalette.map(color => (
+                  <button
+                    key={color}
+                    className="color-option"
+                    style={{ backgroundColor: color }}
+                    onClick={() => handleColorChange(color)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <Link to="/signup" className="nav-item sign-in tool-tooltip" data-tooltip="Sign In">
+          <LogIn className="icon" /> Sign In
+        </Link>
       </div>
-      <Link to="/signup" className="nav-item sign-in">🔒 Sign In</Link>
-      </div>
-  
+    </div>
   );
 };
 
-export default Navbar;
+export default Navbar;
