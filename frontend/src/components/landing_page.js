@@ -2,7 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import '../style/landingpage.css';
 import MouseTrail from "./mousetraileffect";
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { 
+  
+  LogIn,
 
+} from 'lucide-react';
 function LandingPage() {
   const sectionRefs = useRef([]);
   const typedTextRefs = useRef([]);
@@ -64,7 +69,18 @@ function LandingPage() {
   return (
     <div className="landing-container">
       <MouseTrail />
-     
+      <nav className="navbar">
+      <div className="navbar-logo">
+        <h1>DrawTopia</h1>
+      </div>
+      <div className="navbar-buttons">
+        <button className="btn1">Home</button>
+        <button className="btn1">About</button>
+        <Link to="/signup" className="nav-item sign-in tool-tooltip" data-tooltip="Sign In">
+          <LogIn className="icon" /> Sign In
+        </Link>
+      </div>
+    </nav>
       <div 
         ref={(el) => sectionRefs.current[0] = el} 
         className='intro first-section'

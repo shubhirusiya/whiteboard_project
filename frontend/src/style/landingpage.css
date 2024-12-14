@@ -223,3 +223,73 @@ html, body {
   margin-top: 0px;
   float: right;
 }
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 97%;
+}
+
+/* Logo styling */
+.navbar-logo h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+  font-family: "Montserrat", serif;
+}
+
+/* Button container to center buttons */
+.navbar-buttons {
+  display: flex;
+  gap: 1.5rem; /* Spacing between buttons */
+}
+
+/* Button styling */
+.btn1 {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  background-color: white;
+  color: #333;
+  border: none;
+  border-radius: 0; /* No rounded corners */
+  cursor: pointer;
+  transition: color 0.3s, background-color 0.3s;
+  font-family: "Montserrat", serif;
+}
+
+/* Button hover effect */
+.btn1:hover {
+  color: #007BFF;
+       /* Light gray background on hover */
+}
+.sign-in {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.sign-in:hover {
+  background-color: #0056b3;
+}
+
+.tool-tooltip {
+  position: relative;
+}
+
+.tool-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+}

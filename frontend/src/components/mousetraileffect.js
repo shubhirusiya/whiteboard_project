@@ -64,8 +64,9 @@ const LineTrail = () => {
           ctx.lineTo(trail[i].x, trail[i].y);
         }
 
-        ctx.strokeStyle = "#aebbff"; // Trail color
+        ctx.strokeStyle = "#00ffff88"; // Trail color
         ctx.lineWidth = 11; // Trail thickness
+        
         ctx.stroke();
       }
     };

@@ -384,7 +384,30 @@ useEffect(() => {
   };
 
 
+  const handleOpenClick = async () => {
+    const projectToLoad = prompt("Enter the project name to open:");
+    if (!projectToLoad) return;
 
+    try {
+        const response = await fetch(`http://localhost:8080/get-canvas/${projectToLoad}`);
+        if (response.ok) {
+            const canvasData = await response.json();
+            // Update the state with the loaded canvas data
+            setLines(canvasData.lines);
+            setShapes(canvasData.shapes);
+            setTexts(canvasData.texts);
+            setStickyNotes(canvasData.stickyNotes || []); // handle case if stickyNotes is not present
+            alert("Project loaded successfully!");
+        } else {
+            alert("Failed to load the project. Ensure the name is correct.");
+        }
+    } catch (error) {
+        console.error("Error loading project:", error);
+        alert("Error loading project");
+    }
+};
+
+  
 
 
 
@@ -420,7 +443,12 @@ useEffect(() => {
         <button onClick={handleSaveClick} style={{ padding: '8px 5px', borderRadius: '10px', backgroundColor: 'green', color: '#fff', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
           Save
         </button>
+        <button onClick={handleOpenClick} style={{ padding: '8px 5px', borderRadius: '10px', backgroundColor: 'green', color: '#fff', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
+          Open
+        </button>
+        
       </div>
+
 
       <Stage
         width={window.innerWidth * 0.8}
