@@ -236,11 +236,11 @@ html, body {
 .pic2 img{
   display: flex;
   justify-content: center;
-  width: 600px;
+  width: 700px;
   height: 600px;
   align-items: center;
-  margin-left: 200px;
-  margin-right: 300px;
+  margin-left: 400px;
+  margin-right: 200px;
   margin-top: 0px;
   float: right;
 }
@@ -290,7 +290,8 @@ html, body {
 }
 
 .sign-in {
-  background: linear-gradient(to right, #00FFA3, #DC1FFF);
+  background-color: #0351a4;
+  /* background: linear-gradient(to right, #00FFA3, #DC1FFF); */
   color: white;
   padding: 10px 20px;
   border-radius: 30px;
@@ -302,7 +303,8 @@ html, body {
 }
 
 .sign-in:hover {
-  background: linear-gradient(to right, #DC1FFF, #00FFA3);
+  /* background: linear-gradient(to right, #DC1FFF, #00FFA3); */
+  background-color: #012a55;
 }
 
 .tool-tooltip {
@@ -315,3 +317,4 @@ html, body {
   bottom: 100%;
   left: 50%;
 }
+
