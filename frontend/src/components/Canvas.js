@@ -263,10 +263,14 @@ useEffect(() => {
   const handleUndo = () => {
     if (selectedTool === 'pen' || selectedTool === 'eraser') {
       setLines(lines.slice(0, -1));
-    } else {
+    } else if(selectedTool ==='rect' || selectedTool ==='circle' || selectedTool ==='triangle' || selectedTool==='line' || selectedTool==='arrow') {
       setShapes(shapes.slice(0, -1));
-      setTexts(texts.slice(0, -1));
+      // setTexts(texts.slice(0, -1));
     }
+    else if(selectedTool === 'text' || selectedTool === 'sticky-note') {
+            setTexts(texts.slice(0, -1));
+
+    } 
   };
 
   const handleSaveClick = () => {

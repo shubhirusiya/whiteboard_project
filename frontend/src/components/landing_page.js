@@ -143,11 +143,17 @@ function LandingPage() {
       
       <div className="pics">
         
-      <div className="pic3"><img src="./bg1.jpg" alt="" /></div>
+      {/* <div className="pic3"><img src="./bg1.jpg" alt="" /></div> */}
       <div className="pic2"><img src="./note5.png" alt="" /></div>
-      <div className="pic3"><img src="./bg1.jpg" alt="" /></div>
+      {/* <div className="pic3"><img src="./bg1.jpg" alt="" /></div> */}
       </div>
+      <div className="container">
+            <button className="btn animated-border" data="Try Whiteboard" onClick={() => navigate('/canvas')}>
+              <span className="btn-content">Try Whiteboard</span>
+            </button>
+          </div>
       </div>
+     
     </div>
     </div>
   );
