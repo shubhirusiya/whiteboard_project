@@ -123,6 +123,7 @@ html, body {
   bottom: 0px;
   left: 0px;
 }
+
 .btn:hover::after{
   color: white;
 }
@@ -184,6 +185,26 @@ html, body {
   animation: pop 0.6s ease-out;
 }
 
+/* Study Section Pop Animation */
+@keyframes study-pop {
+  0% { 
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  70% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+  100% { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.third-section.section-visible {
+  animation: pop 0.6s ease-out;
+}
+
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 8px;
@@ -205,13 +226,13 @@ html, body {
 .fourthintro{
   font-size: 30px;
   text-align: center;
-  
-
 }
+
 .pics{
   display: flex;
   float: left;
 }
+
 .pic2 img{
   display: flex;
   justify-content: center;
@@ -266,10 +287,10 @@ html, body {
 /* Button hover effect */
 .btn1:hover {
   color: #007BFF;
-       /* Light gray background on hover */
 }
+
 .sign-in {
-  background-color: var(--primary-color);
+  background: linear-gradient(to right, #00FFA3, #DC1FFF);
   color: white;
   padding: 10px 20px;
   border-radius: 30px;
@@ -277,10 +298,11 @@ html, body {
   align-items: center;
   gap: 8px;
   transition: background-color 0.3s ease;
+  text-decoration: none;
 }
 
 .sign-in:hover {
-  background-color: #0056b3;
+  background: linear-gradient(to right, #DC1FFF, #00FFA3);
 }
 
 .tool-tooltip {

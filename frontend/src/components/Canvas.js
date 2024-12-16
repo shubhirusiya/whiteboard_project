@@ -431,23 +431,166 @@ useEffect(() => {
           <span style={{ fontSize: '14px', marginBottom: '4px' }}>Brush Size</span>
           <input type="range" min="1" max="20" value={brushSize} onChange={(e) => setBrushSize(Number(e.target.value))} style={{ cursor: 'pointer' }} />
         </label>
-        <button onClick={handleNewProject} style={{ padding: '8px 15px', borderRadius: '10px', backgroundColor: '#FF5C5C', color: '#fff', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
-          New Project
-        </button>
-        <button onClick={handleClearCanvas} style={{ padding: '8px 5px', borderRadius: '10px', backgroundColor: 'gray', color: '#fff', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
-          Clear Canvas
-        </button>
-        <button onClick={handleUndo} style={{ padding: '1px 7px 3px', borderRadius: '5px', backgroundColor: 'dodgerblue', color: '#fff', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
-          Undo
-        </button>
-        <button onClick={handleSaveClick} style={{ padding: '8px 5px', borderRadius: '10px', backgroundColor: 'green', color: '#fff', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
-          Save
-        </button>
-        <button onClick={handleOpenClick} style={{ padding: '8px 5px', borderRadius: '10px', backgroundColor: 'green', color: '#fff', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
-          Open
-        </button>
+        <button onClick={handleNewProject} className="toolbar-button new-project-btn">
+  New Project
+</button>
+<button onClick={handleClearCanvas} className="toolbar-button clear-canvas-btn">
+  Clear Canvas
+</button>
+<button onClick={handleUndo} className="toolbar-button undo-btn">
+  Undo
+</button>
+<button onClick={handleSaveClick} className="toolbar-button save-btn">
+  Save
+</button>
+<button onClick={handleOpenClick} className="toolbar-button open-btn">
+  Open
+</button>
         
       </div>
+
+
+
+
+
+{/* Add this to the existing style block or create a new one */}
+<style jsx>{`
+  .canvas-toolbar {
+    display: flex;
+    gap: 15px;
+    padding: 10px 20px;
+    background: linear-gradient(145deg, #f0f0f0, #e6e6e6);
+    border-radius: 15px;
+    box-shadow: 
+      6px 6px 12px rgba(0, 0, 0, 0.1), 
+      -6px -6px 12px rgba(255, 255, 255, 0.9);
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+  }
+
+  .canvas-toolbar:hover {
+    box-shadow: 
+      8px 8px 16px rgba(0, 0, 0, 0.15), 
+      -8px -8px 16px rgba(255, 255, 255, 0.95);
+  }
+
+  .toolbar-button {
+    position: relative;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: linear-gradient(45deg, #4a4a4a, #6a6a6a);
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .toolbar-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: all 0.3s ease;
+  }
+
+  .toolbar-button:hover::before {
+    left: 100%;
+  }
+
+  .toolbar-button:hover {
+    transform: scale(1.05);
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .new-project-btn {
+    background: linear-gradient(45deg, #FF5C5C, #FF7F7F);
+  }
+
+  .clear-canvas-btn {
+    background: linear-gradient(45deg, #808080, #A0A0A0);
+  }
+
+  .undo-btn {
+    background: linear-gradient(45deg, #4169E1, #6495ED);
+  }
+
+  .save-btn {
+    background: linear-gradient(45deg, #4CAF50, #81C784);
+  }
+
+  .open-btn {
+    background: linear-gradient(45deg, #2196F3, #64B5F6);
+  }
+
+  .color-picker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .color-picker-label {
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .color-picker input[type="color"] {
+    -webkit-appearance: none;
+    border: none;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+  }
+
+  .color-picker input[type="color"]:hover {
+    transform: scale(1.1);
+  }
+
+  .color-picker input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  .color-picker input[type="color"]::-webkit-color-swatch {
+    border: none;
+  }
+
+  .brush-size-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .brush-size-label {
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .brush-size-input {
+    width: 100px;
+    accent-color: #4169E1;
+    cursor: pointer;
+  }
+`}</style>
+
+
+
+
 
 
       <Stage
