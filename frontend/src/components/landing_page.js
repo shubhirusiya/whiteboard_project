@@ -3,7 +3,7 @@ import '../style/landingpage.css';
 import MouseTrail from "./mousetraileffect";
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { LogIn } from 'lucide-react';
+import { LogIn, Home, Info } from 'lucide-react';
 
 function LandingPage() {
   const sectionRefs = useRef([]);
@@ -68,13 +68,23 @@ function LandingPage() {
       <MouseTrail />
       <nav className="navbar">
         <div className="navbar-logo">
-          <h1>DrawTopia</h1>
+          <h1 className="logo-text">
+            Draw<span className="topia-text">Topia</span>
+            <span className="logo-subtitle">Your Creative Paradise</span>
+          </h1>
         </div>
         <div className="navbar-buttons">
-          <button className="btn1">Home</button>
-          <button className="btn1">About</button>
-          <Link to="/signup" className="nav-item sign-in tool-tooltip" data-tooltip="Sign In">
-            <LogIn className="icon" /> Sign In
+          <Link to="/" className="nav-btn">
+            <Home size={18} />
+            <span>Home</span>
+          </Link>
+          <Link to="/about" className="nav-btn">
+            <Info size={18} />
+            <span>About</span>
+          </Link>
+          <Link to="/signup" className="nav-btn sign-in">
+            <LogIn size={18} />
+            <span>Sign In</span>
           </Link>
         </div>
       </nav>
@@ -131,11 +141,14 @@ function LandingPage() {
         </div>
       </div>
       
-      <div ref={(el) => sectionRefs.current[3] = el} className="fourthintro">
+      <div 
+        ref={(el) => sectionRefs.current[3] = el} 
+        className="fourthintro"
+      >
         <h1 ref={(el) => typedTextRefs.current[7] = el} className="constant-gradient-text">Start Collaborating Today!</h1>
         <div className="pics">
           <div className="pic2">
-            <img src="./note5.png" alt="" />
+            <img src="./note5.png" alt="Collaboration Example" />
           </div>
         </div>
       </div>

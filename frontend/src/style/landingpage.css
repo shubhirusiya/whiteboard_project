@@ -200,61 +200,98 @@ html, body {
   float: right;
 }
 
-/* Navbar Styling */
+/* Updated Navbar Styling */
+/* These are only the updated navbar-related CSS rules - add these to your existing CSS file */
+
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 97%;
+  padding: 1.2rem 2.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .navbar-logo h1 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
   margin: 0;
-  font-family: "Montserrat", serif;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  position: relative;
+}
+
+.logo-text {
+  background: linear-gradient(135deg, #9458a4 0%, #255763 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.topia-text {
+  background: linear-gradient(135deg, #625dc6 0%, #8a15b3 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  
+}
+
+.logo-subtitle {
+  display: block;
+  font-size: 0.8rem;
+  font-family: 'Sofia Pro Soft', sans-serif;
+  font-weight: 500;
+  color: #151414;
+  letter-spacing: 0.5px;
+  margin-top: 5px;
 }
 
 .navbar-buttons {
   display: flex;
-  gap: 1.5rem;
+  gap: 2rem;
+  align-items: center;
+  margin-right: 1.5rem;
 }
 
-.btn1 {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
+.nav-btn {
+  font-family: 'Poppins', sans-serif;
   font-weight: 500;
-  background-color: white;
+  font-size: 0.9rem;
+  font-size: 1rem;  /* Increased from 0.9rem */
+  padding: 0.7rem 1.4rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
   color: #333;
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-  transition: color 0.3s, background-color 0.3s;
-  font-family: "Montserrat", serif;
 }
 
-.btn1:hover {
-  color: #007BFF;
+.nav-btn:hover {
+  transform: translateY(-2px);
+  color: #2f2a9c;
 }
 
 .sign-in {
-  background-color: #0351a4;
+  background: linear-gradient(135deg, #726ce0 0%, #8a15b3 100%);
   color: white;
-  padding: 10px 20px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background-color 0.3s ease;
-  text-decoration: none;
+  border: none;
+  margin-left: 3rem;
+  margin-right: 2rem;
+  padding: 0.7rem 1.5rem;
+  position: relative;
+  background-clip: padding-box;
 }
 
 .sign-in:hover {
-  background-color: #012a55;
+  background: linear-gradient(135deg, #5a53c2 0%, #741098 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(47, 42, 156, 0.2);
 }
 
 .tool-tooltip {
