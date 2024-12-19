@@ -3,11 +3,8 @@ import '../style/landingpage.css';
 import MouseTrail from "./mousetraileffect";
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { 
-  
-  LogIn,
+import { LogIn } from 'lucide-react';
 
-} from 'lucide-react';
 function LandingPage() {
   const sectionRefs = useRef([]);
   const typedTextRefs = useRef([]);
@@ -70,17 +67,18 @@ function LandingPage() {
     <div className="landing-container">
       <MouseTrail />
       <nav className="navbar">
-      <div className="navbar-logo">
-        <h1>DrawTopia</h1>
-      </div>
-      <div className="navbar-buttons">
-        <button className="btn1">Home</button>
-        <button className="btn1">About</button>
-        <Link to="/signup" className="nav-item sign-in tool-tooltip" data-tooltip="Sign In">
-          <LogIn className="icon" /> Sign In
-        </Link>
-      </div>
-    </nav>
+        <div className="navbar-logo">
+          <h1>DrawTopia</h1>
+        </div>
+        <div className="navbar-buttons">
+          <button className="btn1">Home</button>
+          <button className="btn1">About</button>
+          <Link to="/signup" className="nav-item sign-in tool-tooltip" data-tooltip="Sign In">
+            <LogIn className="icon" /> Sign In
+          </Link>
+        </div>
+      </nav>
+      
       <div 
         ref={(el) => sectionRefs.current[0] = el} 
         className='intro first-section'
@@ -128,33 +126,19 @@ function LandingPage() {
           <h1 ref={(el) => typedTextRefs.current[5] = el} className="constant-gradient-text">Study Together, Learn Together</h1>
           <p ref={(el) => typedTextRefs.current[4] = el} className="description-text">
             Want to study and learn together? 
-            </p>
-           <p> Try the whiteboard now!</p>
-         
+          </p>
+          <p>Try the whiteboard now!</p>
         </div>
       </div>
-      <div
-       ref={(el) => sectionRefs.current[2] = el} >
-
-     
-      <div className="fourthintro">
-      <h1 ref={(el) => typedTextRefs.current[7] = el} className="constant-gradient-text">Start Collaborating Today!</h1>
-        
       
-      <div className="pics">
-        
-      {/* <div className="pic3"><img src="./bg1.jpg" alt="" /></div> */}
-      <div className="pic2"><img src="./note5.png" alt="" /></div>
-      {/* <div className="pic3"><img src="./bg1.jpg" alt="" /></div> */}
-      </div>
-      <div className="container">
-            <button className="btn animated-border" data="Try Whiteboard" onClick={() => navigate('/canvas')}>
-              <span className="btn-content">Try Whiteboard</span>
-            </button>
+      <div ref={(el) => sectionRefs.current[3] = el} className="fourthintro">
+        <h1 ref={(el) => typedTextRefs.current[7] = el} className="constant-gradient-text">Start Collaborating Today!</h1>
+        <div className="pics">
+          <div className="pic2">
+            <img src="./note5.png" alt="" />
           </div>
+        </div>
       </div>
-     
-    </div>
     </div>
   );
 }

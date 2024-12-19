@@ -16,7 +16,7 @@ function Canvas({ selectedTool }) {
   const [startPos, setStartPos] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
   const [selectedText, setSelectedText] = useState(null);
-  
+  const [actionHistory, setActionHistory] = useState([]); 
   
   const [selectedToolState, setSelectedTool] = useState(selectedTool);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -26,6 +26,8 @@ function Canvas({ selectedTool }) {
   const stageRef = useRef(null);
   const transformerRef = useRef(null);
   const socket = useRef(null);
+  const lastStickyNoteRef = useRef(null);
+ 
 
   useEffect(() => {
     socket.current = io('http://localhost:8080');
@@ -46,6 +48,7 @@ function Canvas({ selectedTool }) {
       socket.current.disconnect();
     };
   }, []);
+  
 
   useEffect(() => {
     if (selectedId) {
@@ -130,29 +133,34 @@ useEffect(() => {
     socket.current.emit('draw-data', data);
   };
 
-  const handleMouseDown = (event) => {
-    const pos = event.target.getStage().getPointerPosition();
-    setIsDrawing(true);
-    setStartPos(pos);
+  // Modify your handleMouseDown function to track actions
+const handleMouseDown = (event) => {
+  const pos = event.target.getStage().getPointerPosition();
+  if (event.target !== event.target.getStage() && selectedTool === 'sticky-note') {
+    return;
+  }
+  setIsDrawing(true);
+  setStartPos(pos);
 
-     // Sticky Note creation
-     if (selectedTool === 'sticky-note') {
-      const newStickyNote = {
-        id: `sticky-note-${stickyNotes.length}`,
-        x: pos.x,
-        y: pos.y,
-        text: '',
-        width: 150,
-        height: 159,
-        fontSize: 17,
-        draggable: true,
-        color: color || '#FFFF88', // Default to yellow sticky note
-        backgroundColor: color || '#FFFF88'
-      };
-      setStickyNotes(prevNotes => [...prevNotes, newStickyNote]);
-      
-      setSelectedId(newStickyNote.id);
-      setSelectedText(newStickyNote);
+  if (selectedTool === 'sticky-note' && event.target === event.target.getStage()) {
+    const newStickyNote = {
+      id: `sticky-note-${Date.now()}`,
+      x: pos.x,
+      y: pos.y,
+      text: '',
+      width: 200,
+      height: 150,
+      fontSize: 17,
+      draggable: true,
+      color: color || '#FFFF88',
+      backgroundColor: color || '#FFFF88'
+    };
+    
+    setStickyNotes(prevNotes => [...prevNotes, newStickyNote]);
+    setSelectedId(newStickyNote.id);
+    setSelectedText(newStickyNote);
+    lastStickyNoteRef.current = newStickyNote;
+    setActionHistory(prev => [...prev, { type: 'sticky-note', action: 'add' }]);
       emitDrawData({
         ...newStickyNote,
         tool: 'sticky-note'
@@ -179,6 +187,8 @@ useEffect(() => {
       setTexts([...texts, newText]);
       setSelectedId(newText.id);
       setSelectedText(newText);
+      
+      setActionHistory(prev => [...prev, { type: 'text', action: 'add' }]);
       emitDrawData({
         ...newText,
         tool: 'text'
@@ -192,12 +202,14 @@ useEffect(() => {
       };
       
       setLines([...lines, newData]);
+      setActionHistory(prev => [...prev, { type: selectedTool, action: 'add' }]);
       emitDrawData(newData);
     }
       
      else if (['rect', 'circle', 'line', 'triangle', 'arrow'].includes(selectedTool)) {
       const newData = { tool: selectedTool, startX: pos.x, startY: pos.y, endX: pos.x, endY: pos.y, color, fillColor };
       setShapes([...shapes, newData]);
+      setActionHistory(prev => [...prev, { type: selectedTool, action: 'add' }]);
       emitDrawData(newData);
     }
   };
@@ -240,8 +252,9 @@ useEffect(() => {
   const handleStageClick = (e) => {
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
+      if (selectedTool !== 'sticky-note') {
       setSelectedId(null);
-      setSelectedText(null);
+      setSelectedText(null); }
     }
   };
 
@@ -258,20 +271,55 @@ useEffect(() => {
     setShapes([]);
     setTexts([]);
     setStickyNotes([]);
+    setActionHistory([]);
   };
 
-  const handleUndo = () => {
-    if (selectedTool === 'pen' || selectedTool === 'eraser') {
-      setLines(lines.slice(0, -1));
-    } else if(selectedTool ==='rect' || selectedTool ==='circle' || selectedTool ==='triangle' || selectedTool==='line' || selectedTool==='arrow') {
-      setShapes(shapes.slice(0, -1));
-      // setTexts(texts.slice(0, -1));
-    }
-    else if(selectedTool === 'text' || selectedTool === 'sticky-note') {
-            setTexts(texts.slice(0, -1));
+  // Update the handleUndo function
+const handleUndo = () => {
+  if (actionHistory.length === 0) return;
 
-    } 
-  };
+  const lastAction = actionHistory[actionHistory.length - 1];
+  
+  switch (lastAction.type) {
+    case 'sticky-note':
+      setStickyNotes(prevNotes => prevNotes.slice(0, -1));
+      // Clear selection if needed
+      const lastNote = stickyNotes[stickyNotes.length - 1];
+      if (selectedId === lastNote?.id) {
+        setSelectedId(null);
+        setSelectedText(null);
+      }
+      break;
+      
+    case 'pen':
+    case 'eraser':
+      setLines(prevLines => prevLines.slice(0, -1));
+      break;
+      
+    case 'text':
+      setTexts(prevTexts => prevTexts.slice(0, -1));
+      break;
+      
+    case 'rect':
+    case 'circle':
+    case 'line':
+    case 'triangle':
+    case 'arrow':
+      setShapes(prevShapes => prevShapes.slice(0, -1));
+      break;
+  }
+  
+  // Remove the last action from history
+  setActionHistory(prev => prev.slice(0, -1));
+  
+  // Emit undo action to other clients if needed
+  if (socket.current) {
+    socket.current.emit('draw-data', {
+      tool: lastAction.type,
+      action: 'undo'
+    });
+  }
+};
 
   const handleSaveClick = () => {
     setIsSaveModalOpen(true);
@@ -353,8 +401,13 @@ useEffect(() => {
         }
 
         setStickyNotes(newStickyNotes);
+        
+        // Update the selected note reference
+        const updatedNote = newStickyNotes[noteIndex];
+        setSelectedText(updatedNote);
+
         emitDrawData({
-          ...newStickyNotes[noteIndex],
+          ...updatedNote,
           tool: 'sticky-note'
         });
       };
@@ -624,6 +677,11 @@ useEffect(() => {
             setSelectedText(null);
           }
         }}
+       
+       
+       
+       
+    
         
       >
         <Layer>
@@ -695,6 +753,7 @@ useEffect(() => {
               />
             </React.Fragment>
           ))}
+          
 
 
           {lines.map((line, index) => (
